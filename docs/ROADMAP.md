@@ -84,6 +84,16 @@
 |------|------|------|
 | **Task-010** | Supabase OAuth 소셜 로그인 연동 (카카오/구글) — OAuth Provider 등록, 콜백 라우트 확인, 로그인 페이지 mock 버튼을 실제 OAuth 버튼으로 교체, 보호 라우트 동작 및 로그인 성공/실패 흐름 검증 | ⬜ |
 
+> **Task-010 시작 전 직접 해야 할 것 (외부 서비스 설정)**
+>
+> - [ ] `docs/schema.sql` → Supabase 대시보드 **SQL Editor**에 전체 붙여넣기 후 실행 (테이블 4개 + RLS + trigger 생성 확인)
+> - [ ] [Google Cloud Console](https://console.cloud.google.com) → 프로젝트 생성 → **API 및 서비스 > 사용자 인증 정보** → OAuth 2.0 클라이언트 ID/Secret 발급
+>   - 승인된 리다이렉션 URI: `https://<your-project>.supabase.co/auth/v1/callback`
+> - [ ] Supabase 대시보드 → **Authentication > Providers > Google** → Client ID / Secret 입력 후 활성화
+> - [ ] (선택) [카카오 개발자 센터](https://developers.kakao.com) → 앱 등록 → REST API 키 발급 → Supabase **Providers > Kakao** 활성화
+>
+> 위 항목 완료 후 Claude에게 Task-010 코딩 요청
+
 ---
 
 ## Phase 4: 기능 연동
