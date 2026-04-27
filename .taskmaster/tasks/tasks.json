@@ -3,252 +3,184 @@
     "tasks": [
       {
         "id": 1,
-        "title": "의존성 패키지 설치 및 프로젝트 초기 설정",
+        "title": "패키지 설치 및 프로젝트 초기화",
         "description": "React Hook Form, Zod, Resend 패키지를 설치하고 프로젝트 메타데이터와 레이아웃을 GroupMeet에 맞게 초기화한다.",
         "details": "1. 패키지 설치: `npm install react-hook-form zod @hookform/resolvers resend`\n2. `app/layout.tsx`의 메타데이터를 GroupMeet으로 업데이트:\n   - title: 'GroupMeet - 소규모 모임 관리'\n   - description: '카카오톡 기반 소규모 모임 운영자를 위한 참여자 모집, 공지, 정산 플랫폼'\n3. `app/globals.css` 등 전역 스타일에서 스타터 키트 관련 불필요한 CSS 제거\n4. 환경 변수 템플릿 파일(`.env.local.example`) 생성:\n   ```\n   NEXT_PUBLIC_SUPABASE_URL=\n   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=\n   RESEND_API_KEY=\n   ```",
         "testStrategy": "npm run build로 빌드 오류가 없는지 확인. npm run dev 실행 후 localhost:3000 접근 가능 여부 확인.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 2,
         "title": "미들웨어 수정: /join/* 공개 접근 허용",
         "description": "참여자가 비로그인으로 /join/[eventId] 경로에 접근할 수 있도록 proxy.ts 미들웨어를 수정한다.",
-        "details": "`lib/supabase/proxy.ts`의 `updateSession` 함수에서 공개 경로 조건을 수정한다:\n\n```typescript\n// 기존 조건\nif (\n  request.nextUrl.pathname !== '/' &&\n  !user &&\n  !request.nextUrl.pathname.startsWith('/login') &&\n  !request.nextUrl.pathname.startsWith('/auth')\n)\n\n// 수정 후\nif (\n  request.nextUrl.pathname !== '/' &&\n  !user &&\n  !request.nextUrl.pathname.startsWith('/auth') &&\n  !request.nextUrl.pathname.startsWith('/join')  // 참여자 공개 페이지 추가\n)\n```\n\n또한 `app/protected/` 디렉토리를 `app/dashboard/`로 리네이밍하거나, 대시보드 라우트를 `/dashboard`로 변경하는 것을 고려한다. 미들웨어가 `/dashboard`, `/event/*` 경로를 보호하고 `/join/*`은 허용하도록 명확히 설정한다.",
+        "details": "`lib/supabase/proxy.ts`의 `updateSession` 함수에서 공개 경로 조건을 수정한다:\n\n```typescript\n// 수정 후\nif (\n  request.nextUrl.pathname !== '/' &&\n  !user &&\n  !request.nextUrl.pathname.startsWith('/auth') &&\n  !request.nextUrl.pathname.startsWith('/join')  // 참여자 공개 페이지 추가\n)\n```\n\n미들웨어가 `/dashboard`, `/event/*` 경로를 보호하고 `/join/*`은 허용하도록 설정한다.",
         "testStrategy": "비로그인 상태에서 /join/test-id 접근 시 로그인 페이지로 리다이렉트되지 않음을 확인. /dashboard 접근 시 /auth/login으로 리다이렉트됨을 확인.",
         "priority": "high",
-        "dependencies": [
-          1
-        ],
-        "status": "pending",
+        "dependencies": [1],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 3,
         "title": "로그인 페이지 Mock UI 구현 (소셜 로그인 버튼)",
         "description": "기존 이메일/패스워드 로그인 폼을 카카오/구글 소셜 로그인 버튼으로 교체한 Mock UI를 구현한다.",
-        "details": "`components/login-form.tsx`를 소셜 로그인 전용으로 교체한다:\n\n```tsx\n'use client';\nimport { Button } from '@/components/ui/button';\nimport { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';\n\nexport function LoginForm() {\n  const handleKakaoLogin = async () => {\n    // Phase 4에서 Supabase OAuth 연동\n    console.log('카카오 로그인 클릭');\n  };\n\n  const handleGoogleLogin = async () => {\n    // Phase 4에서 Supabase OAuth 연동\n    console.log('구글 로그인 클릭');\n  };\n\n  return (\n    <div className='flex flex-col gap-6'>\n      <Card>\n        <CardHeader className='text-center'>\n          <CardTitle className='text-2xl'>GroupMeet</CardTitle>\n          <CardDescription>소규모 모임 관리 플랫폼</CardDescription>\n        </CardHeader>\n        <CardContent className='flex flex-col gap-4'>\n          {/* 카카오 로그인 버튼 (노란색) */}\n          <Button\n            className='w-full bg-[#FEE500] text-[#191919] hover:bg-[#FEE500]/90'\n            onClick={handleKakaoLogin}\n          >\n            카카오로 시작하기\n          </Button>\n          {/* 구글 로그인 버튼 */}\n          <Button variant='outline' className='w-full' onClick={handleGoogleLogin}>\n            Google로 시작하기\n          </Button>\n        </CardContent>\n      </Card>\n    </div>\n  );\n}\n```\n\n`app/auth/login/page.tsx`는 기존 레이아웃을 유지하되 제목/설명 텍스트를 제거하고 LoginForm만 표시한다.\n불필요한 파일(sign-up, forgot-password, update-password, sign-up-success 페이지 및 관련 컴포넌트)을 제거하거나 무시한다.",
+        "details": "`components/login-form.tsx`를 소셜 로그인 전용으로 교체한다:\n\n```tsx\n'use client';\nimport { Button } from '@/components/ui/button';\nimport { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';\n\nexport function LoginForm() {\n  const handleKakaoLogin = async () => {\n    // Phase 3에서 Supabase OAuth 연동\n    console.log('카카오 로그인 클릭');\n  };\n\n  const handleGoogleLogin = async () => {\n    // Phase 3에서 Supabase OAuth 연동\n    console.log('구글 로그인 클릭');\n  };\n\n  return (\n    <div className='flex flex-col gap-6'>\n      <Card>\n        <CardHeader className='text-center'>\n          <CardTitle className='text-2xl'>GroupMeet</CardTitle>\n          <CardDescription>소규모 모임 관리 플랫폼</CardDescription>\n        </CardHeader>\n        <CardContent className='flex flex-col gap-4'>\n          <Button\n            className='w-full bg-[#FEE500] text-[#191919] hover:bg-[#FEE500]/90'\n            onClick={handleKakaoLogin}\n          >\n            카카오로 시작하기\n          </Button>\n          <Button variant='outline' className='w-full' onClick={handleGoogleLogin}>\n            Google로 시작하기\n          </Button>\n        </CardContent>\n      </Card>\n    </div>\n  );\n}\n```\n\n`app/auth/login/page.tsx`는 기존 레이아웃을 유지하되 LoginForm만 표시한다.",
         "testStrategy": "npm run dev 실행 후 /auth/login 페이지에서 카카오/구글 버튼이 렌더링되는지 확인. 버튼 클릭 시 콘솔 로그가 출력되는지 확인.",
         "priority": "high",
-        "dependencies": [
-          1
-        ],
-        "status": "pending",
+        "dependencies": [1],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 4,
-        "title": "대시보드 페이지 Mock UI 구현 (모임 목록 + 모임 생성 폼)",
+        "title": "대시보드 + 모임 생성 폼 Mock UI 구현",
         "description": "운영자 대시보드 페이지를 하드코딩된 mock 데이터로 구현한다. 모임 목록 카드와 모임 생성 인라인 폼을 포함한다.",
-        "details": "`app/dashboard/page.tsx` 생성 (Server Component):\n\n```typescript\n// Mock 데이터\nconst MOCK_EVENTS = [\n  {\n    id: 'mock-1',\n    title: '5월 정기 모임',\n    date: '2025-05-10T14:00:00',\n    location: '강남역 스타벅스',\n    fee: 10000,\n    capacity: 15,\n    participantCount: 8,\n  },\n  {\n    id: 'mock-2',\n    title: '주말 등산 모임',\n    date: '2025-05-17T08:00:00',\n    location: '북한산 입구',\n    fee: 5000,\n    capacity: 10,\n    participantCount: 5,\n  },\n];\n```\n\n페이지 레이아웃:\n1. 상단 헤더: 'GroupMeet' 로고 + 로그아웃 버튼\n2. '내 모임' 섹션 제목 + '+ 모임 만들기' 버튼\n3. 모임 카드 그리드 (Card 컴포넌트 사용):\n   - 카드에 제목, 날짜, 장소, 회비(원), 참여자 수 표시\n   - Badge로 날짜 표시\n   - 클릭 시 /event/[id]로 이동\n4. '모임 만들기' 버튼 클릭 시 인라인 폼 토글 (useState로 표시/숨김):\n   - 필드: 모임 제목(필수), 날짜/시간(필수), 장소(필수), 회비(숫자), 모집 인원(숫자)\n   - '취소' / '생성하기' 버튼\n   - Phase 4에서 실제 생성 로직 연동\n\n`app/dashboard/layout.tsx` 생성: 로그인 필요한 레이아웃 (향후 인증 확인)\n`app/protected/` 경로를 /dashboard로 대체하거나 protected는 그대로 두고 dashboard를 별도 추가한다.",
-        "testStrategy": "비로그인 상태에서 /dashboard 접근 시 /auth/login으로 리다이렉트 확인. 로그인 상태에서 mock 모임 카드 2개가 렌더링되는지 확인. '+ 모임 만들기' 클릭 시 인라인 폼이 나타나는지 확인.",
+        "details": "`app/dashboard/page.tsx` 생성 (Server Component):\n\n```typescript\n// Mock 데이터\nconst MOCK_EVENTS = [\n  {\n    id: 'mock-1',\n    title: '5월 정기 모임',\n    date: '2025-05-10T14:00:00',\n    location: '강남역 스타벅스',\n    fee: 10000,\n    capacity: 15,\n    participantCount: 8,\n  },\n  {\n    id: 'mock-2',\n    title: '주말 등산 모임',\n    date: '2025-05-17T08:00:00',\n    location: '북한산 입구',\n    fee: 5000,\n    capacity: 10,\n    participantCount: 5,\n  },\n];\n```\n\n페이지 레이아웃:\n1. 상단 헤더: 'GroupMeet' 로고 + 로그아웃 버튼(mock)\n2. '내 모임' 섹션 + '+ 모임 만들기' 버튼\n3. 모임 카드 그리드 (제목, 날짜, 장소, 회비, 참여자 수 표시)\n4. '모임 만들기' 버튼 클릭 시 인라인 폼 토글 (useState):\n   - 필드: 모임 제목, 날짜/시간, 장소, 회비, 모집 인원\n   - '취소' / '생성하기' 버튼\n   - Phase 4에서 실제 생성 로직 연동",
+        "testStrategy": "비로그인 상태에서 /dashboard 접근 시 /auth/login으로 리다이렉트 확인. mock 모임 카드 2개가 렌더링되는지 확인. '+ 모임 만들기' 클릭 시 인라인 폼이 나타나는지 확인.",
         "priority": "high",
-        "dependencies": [
-          2,
-          3
-        ],
-        "status": "pending",
+        "dependencies": [2, 3],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 5,
-        "title": "모임 상세 페이지 Mock UI 구현 (초대 링크, 공지, 참여자 현황)",
+        "title": "모임 상세 페이지 Mock UI 구현",
         "description": "운영자용 모임 상세 페이지를 mock 데이터로 구현한다. 초대 링크 복사, 공지 작성 폼, 참여자 현황 요약을 포함한다.",
-        "details": "`app/event/[eventId]/page.tsx` 생성 (Server Component with mock data):\n\n```typescript\n// Mock 데이터\nconst MOCK_EVENT = {\n  id: 'mock-1',\n  title: '5월 정기 모임',\n  date: '2025-05-10T14:00:00',\n  location: '강남역 스타벅스',\n  fee: 10000,\n  capacity: 15,\n};\nconst MOCK_STATS = { applied: 8, canceled: 2, attended: 0 };\nconst MOCK_NOTICES = [\n  { id: 'n1', content: '준비물: 편한 복장', created_at: '2025-04-28T10:00:00' }\n];\n```\n\n페이지 구성:\n1. 뒤로가기 버튼 → /dashboard\n2. 모임 기본 정보 카드 (제목, 날짜, 장소, 회비, 인원)\n3. 초대 링크 섹션:\n   - 링크 표시 (Input 읽기전용): `{window.location.origin}/join/{eventId}`\n   - '링크 복사' 버튼 (Client Component, navigator.clipboard.writeText 사용)\n   - 복사 성공 시 '복사됨!' 표시\n4. 참여자 현황 요약:\n   - Badge로 신청 N명 / 취소 N명 / 참석 N명 표시\n   - '참여자 관리' 버튼 → /event/[eventId]/manage로 이동\n5. 공지 작성 섹션 (Client Component):\n   - Textarea (공지 내용 입력)\n   - Checkbox '이메일로 발송'\n   - '공지 등록' 버튼 (Phase 4에서 실제 연동)\n6. 기존 공지 목록 (최신순)\n\n`components/copy-link-button.tsx` Client Component 분리 생성.",
-        "testStrategy": "/event/mock-1 접근 시 모임 정보가 표시되는지 확인. '링크 복사' 버튼 클릭 시 클립보드에 복사됨 표시가 나타나는지 확인. 공지 작성 폼이 렌더링되는지 확인.",
+        "details": "`app/event/[eventId]/page.tsx` 생성 (Server Component with mock data):\n\n모임 기본 정보 카드, 초대 링크 섹션(Input 읽기전용 + 복사 버튼), 참여자 현황 요약(Badge), 공지 작성 섹션(Textarea + Checkbox + 등록 버튼), 기존 공지 목록을 포함한다.\n\n`components/copy-link-button.tsx` Client Component 분리 생성 (navigator.clipboard.writeText 사용, 복사 성공 시 '복사됨!' 표시).\n\n```typescript\n// Mock 데이터\nconst MOCK_EVENT = {\n  id: 'mock-1',\n  title: '5월 정기 모임',\n  date: '2025-05-10T14:00:00',\n  location: '강남역 스타벅스',\n  fee: 10000,\n  capacity: 15,\n};\nconst MOCK_STATS = { applied: 8, canceled: 2, attended: 0 };\nconst MOCK_NOTICES = [\n  { id: 'n1', content: '준비물: 편한 복장', created_at: '2025-04-28T10:00:00' }\n];\n```",
+        "testStrategy": "/event/mock-1 접근 시 모임 정보가 표시되는지 확인. '링크 복사' 버튼 클릭 시 '복사됨!' 표시 확인. 공지 작성 폼이 렌더링되는지 확인.",
         "priority": "high",
-        "dependencies": [
-          4
-        ],
-        "status": "pending",
+        "dependencies": [4],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 6,
-        "title": "모임 관리 페이지 Mock UI 구현 (참여자 목록, 참석 체크, 정산)",
+        "title": "모임 관리 페이지 Mock UI 구현",
         "description": "운영자용 모임 관리 페이지를 mock 데이터로 구현한다. 참여자 테이블, 참석 체크박스, 입금 상태 토글, 정산 요약을 포함한다.",
-        "details": "`app/event/[eventId]/manage/page.tsx` 생성 (Client Component):\n\n```typescript\nconst MOCK_PARTICIPANTS = [\n  { id: 'p1', name: '김철수', email: 'kim@example.com', status: 'applied', attended: false, payment_status: 'unpaid' },\n  { id: 'p2', name: '이영희', email: null, status: 'applied', attended: true, payment_status: 'paid' },\n  { id: 'p3', name: '박민수', email: 'park@example.com', status: 'canceled', attended: false, payment_status: 'unpaid' },\n  { id: 'p4', name: '최지연', email: 'choi@example.com', status: 'applied', attended: false, payment_status: 'paid' },\n];\nconst MOCK_FEE = 10000;\n```\n\n페이지 구성:\n1. 뒤로가기 버튼 → /event/[eventId]\n2. 상태 필터 탭 (전체/신청/취소/참석) → useState로 필터링\n3. 정산 요약 카드:\n   - 총 참여자 수 (applied 상태만)\n   - 입금 완료 수\n   - 미납 수\n   - 총 입금액 = paid 수 × 회비 (canceled 제외)\n4. 참여자 테이블:\n   - 열: 이름, 이메일, 신청상태(Badge), 참석(Checkbox), 입금상태(토글 Badge)\n   - 참석 Checkbox: onChange로 attended 토글 (mock useState)\n   - 입금 Badge: 클릭으로 unpaid ↔ paid 토글 (mock useState)\n5. 참여자가 없을 경우 빈 상태 메시지\n\n정산 계산 로직 (순수 함수):\n```typescript\nconst calcSummary = (participants: Participant[], fee: number) => {\n  const active = participants.filter(p => p.status !== 'canceled');\n  const paid = active.filter(p => p.payment_status === 'paid').length;\n  return {\n    total: active.length,\n    paid,\n    unpaid: active.length - paid,\n    totalAmount: paid * fee,\n  };\n};\n```",
-        "testStrategy": "/event/mock-1/manage 접근 시 참여자 목록 테이블이 렌더링되는지 확인. 상태 필터 탭 클릭 시 해당 상태의 참여자만 표시되는지 확인. 참석 체크박스 토글 및 입금 상태 토글이 동작하는지 확인. 정산 요약 숫자가 올바르게 계산되는지 확인.",
+        "details": "`app/event/[eventId]/manage/page.tsx` 생성 (Client Component):\n\n```typescript\nconst MOCK_PARTICIPANTS = [\n  { id: 'p1', name: '김철수', email: 'kim@example.com', status: 'applied', attended: false, payment_status: 'unpaid' },\n  { id: 'p2', name: '이영희', email: null, status: 'applied', attended: true, payment_status: 'paid' },\n  { id: 'p3', name: '박민수', email: 'park@example.com', status: 'canceled', attended: false, payment_status: 'unpaid' },\n  { id: 'p4', name: '최지연', email: 'choi@example.com', status: 'applied', attended: false, payment_status: 'paid' },\n];\nconst MOCK_FEE = 10000;\n```\n\n정산 계산 로직 (순수 함수):\n```typescript\nconst calcSummary = (participants: Participant[], fee: number) => {\n  const active = participants.filter(p => p.status !== 'canceled');\n  const paid = active.filter(p => p.payment_status === 'paid').length;\n  return {\n    total: active.length,\n    paid,\n    unpaid: active.length - paid,\n    totalAmount: paid * fee,\n  };\n};\n```\n\n상태 필터 탭(전체/신청/취소), 정산 요약 카드, 참여자 테이블(참석 Checkbox 토글, 입금 Badge 토글)을 포함한다.",
+        "testStrategy": "/event/mock-1/manage 접근 시 참여자 목록 테이블 렌더링 확인. 상태 필터 탭 동작 확인. 참석 체크박스 및 입금 상태 토글 동작 확인. 정산 요약 숫자 정확성 확인.",
         "priority": "high",
-        "dependencies": [
-          5
-        ],
-        "status": "pending",
+        "dependencies": [5],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 7,
-        "title": "참여 신청 페이지 Mock UI 구현 (비로그인 공개 페이지)",
+        "title": "참여 신청 페이지 Mock UI 구현 (비로그인 공개)",
         "description": "참여자용 공개 참여 신청 페이지를 mock 데이터로 구현한다. 모임 정보 표시, 신청 폼, 신청 완료 후 취소 버튼을 포함한다.",
-        "details": "`app/join/[eventId]/page.tsx` 생성 (Client Component, 비로그인 공개):\n\n```typescript\nconst MOCK_EVENT = {\n  id: 'mock-1',\n  title: '5월 정기 모임',\n  date: '2025-05-10T14:00:00',\n  location: '강남역 스타벅스',\n  fee: 10000,\n  capacity: 15,\n};\nconst MOCK_LATEST_NOTICE = {\n  content: '준비물: 편한 복장으로 오세요!',\n  created_at: '2025-04-28T10:00:00',\n};\n```\n\n페이지 상태 관리 (useState):\n- `step`: 'form' | 'complete'\n- `participantId`: string | null (신청 완료 후 저장)\n- `name`, `email`, `isEmailOptIn`\n\n페이지 구성:\n1. 모임 정보 카드 (제목, 날짜, 장소, 회비)\n2. 최신 공지 표시 (있을 경우, 없으면 숨김)\n3. step === 'form' 일 때 신청 폼:\n   - 이름 Input (필수, minLength=1)\n   - 이메일 Input (선택, type=email)\n   - '이메일 알림 받기' Checkbox (이메일 입력 시에만 활성화)\n   - '신청하기' Button\n   - 폼 제출 시 step를 'complete'로, mock participantId 저장\n4. step === 'complete' 일 때:\n   - '신청이 완료되었습니다!' 메시지\n   - 이름, 이메일 표시\n   - '신청 취소' Button → 클릭 시 step를 'form'으로 복귀 (mock 취소 처리)\n\n이메일 Checkbox 활성화 규칙: email 값이 비어있으면 Checkbox disabled + isEmailOptIn false로 자동 설정",
-        "testStrategy": "/join/mock-1 접근 시 모임 정보와 신청 폼이 표시되는지 확인. 이름 미입력 상태에서 '신청하기' 클릭 시 폼 유효성 검사가 작동하는지 확인. 이름 입력 후 신청 시 완료 메시지와 취소 버튼이 표시되는지 확인. 취소 버튼 클릭 시 폼으로 돌아오는지 확인.",
+        "details": "`app/join/[eventId]/page.tsx` 생성 (Client Component, 비로그인 공개):\n\n페이지 상태 관리 (useState): `step: 'form' | 'complete'`, `name`, `email`, `isEmailOptIn`\n\n구성:\n1. 모임 정보 카드 (제목, 날짜, 장소, 회비)\n2. 최신 공지 표시 (있을 경우)\n3. step === 'form': 신청 폼 (이름 필수, 이메일 선택, 이메일 알림 Checkbox)\n4. step === 'complete': 완료 메시지 + 이름/이메일 표시 + '신청 취소' 버튼\n\n이메일 미입력 시 Checkbox disabled + isEmailOptIn false 자동 설정.\n\n```typescript\nconst MOCK_EVENT = {\n  id: 'mock-1',\n  title: '5월 정기 모임',\n  date: '2025-05-10T14:00:00',\n  location: '강남역 스타벅스',\n  fee: 10000,\n  capacity: 15,\n};\n```",
+        "testStrategy": "/join/mock-1 접근 시 모임 정보와 신청 폼 표시 확인. 이름 미입력 상태에서 신청 시 유효성 검사 동작 확인. 신청 완료 메시지와 취소 버튼 표시 확인. 취소 버튼으로 폼 복귀 확인.",
         "priority": "high",
-        "dependencies": [
-          2
-        ],
-        "status": "pending",
+        "dependencies": [2],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 8,
-        "title": "Phase 1 Mock UI 검토 및 UX 보완",
+        "title": "Mock UI 전체 검토 및 UX 보완",
         "description": "구현된 모든 Mock UI 페이지를 실제로 탐색하며 UX 흐름, 레이아웃, 모바일 반응형을 검토하고 필요한 수정을 적용한다.",
-        "details": "검토 및 보완 항목:\n\n1. **내비게이션 일관성**:\n   - 모든 운영자 페이지에 일관된 헤더/네비게이션 적용\n   - 브레드크럼 또는 뒤로가기 버튼 일관성 확인\n\n2. **모바일 반응형**:\n   - 각 페이지를 모바일 뷰포트(375px)에서 확인\n   - 참여자 테이블이 모바일에서 스크롤 가능한지 확인\n   - 버튼 터치 영역(최소 44px) 확인\n\n3. **빈 상태(Empty State)**:\n   - 대시보드: 모임이 없을 때 안내 메시지 + 모임 만들기 유도\n   - 관리 페이지: 참여자가 없을 때 안내 메시지\n\n4. **로딩 상태**:\n   - 폼 제출 버튼에 로딩 인디케이터(isLoading 상태) 추가\n\n5. **에러 메시지**:\n   - 폼 유효성 검사 에러 메시지 스타일 통일\n\n6. **날짜/금액 포맷**:\n   - 날짜: `new Date(date).toLocaleDateString('ko-KR', { ... })`\n   - 금액: `fee.toLocaleString('ko-KR') + '원'`\n\n7. **다크 모드** 동작 확인 (next-themes 적용 확인)",
-        "testStrategy": "각 페이지를 Chrome DevTools의 모바일 뷰(iPhone SE, 375px)에서 확인. 모든 버튼과 링크가 의도한 페이지로 이동하는지 확인. 빈 상태 UI가 표시되는지 확인.",
+        "details": "검토 항목:\n1. 네비게이션 일관성 (뒤로가기, 헤더)\n2. 모바일 반응형 확인 (375px 뷰포트)\n3. 빈 상태(Empty State) UI: 모임 없을 때, 참여자 없을 때\n4. 폼 유효성 검사 에러 메시지 스타일 통일\n5. 날짜/금액 포맷:\n   - 날짜: `new Date(date).toLocaleDateString('ko-KR', { ... })`\n   - 금액: `fee.toLocaleString('ko-KR') + '원'`\n6. 다크 모드 동작 확인",
+        "testStrategy": "Chrome DevTools 모바일 뷰(iPhone SE, 375px)에서 각 페이지 확인. 모든 버튼과 링크가 의도한 페이지로 이동하는지 확인. 빈 상태 UI 표시 확인.",
         "priority": "medium",
-        "dependencies": [
-          3,
-          4,
-          5,
-          6,
-          7
-        ],
-        "status": "pending",
+        "dependencies": [3, 4, 5, 6, 7],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 9,
-        "title": "Supabase DB 스키마 설계 및 마이그레이션 SQL 작성",
-        "description": "확정된 Mock UI 기반으로 Supabase PostgreSQL 스키마를 설계하고, 테이블 생성 및 RLS 정책 SQL을 작성한다.",
-        "details": "`docs/schema.sql` 파일 생성:\n\n```sql\n-- users 테이블 (Supabase Auth와 연동)\nCREATE TABLE public.users (\n  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,\n  email TEXT NOT NULL,\n  name TEXT,\n  provider TEXT,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\n-- events 테이블\nCREATE TABLE public.events (\n  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n  host_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,\n  title TEXT NOT NULL,\n  date TIMESTAMPTZ NOT NULL,\n  location TEXT NOT NULL,\n  fee INTEGER DEFAULT 0 NOT NULL,\n  capacity INTEGER,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\n-- participants 테이블\nCREATE TYPE participant_status AS ENUM ('applied', 'canceled');\nCREATE TYPE payment_status AS ENUM ('unpaid', 'paid');\n\nCREATE TABLE public.participants (\n  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,\n  name TEXT NOT NULL,\n  email TEXT,\n  is_email_opt_in BOOLEAN DEFAULT FALSE NOT NULL,\n  status participant_status DEFAULT 'applied' NOT NULL,\n  attended BOOLEAN,\n  payment_status payment_status DEFAULT 'unpaid' NOT NULL,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\n-- notices 테이블\nCREATE TABLE public.notices (\n  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,\n  content TEXT NOT NULL,\n  send_email BOOLEAN DEFAULT FALSE NOT NULL,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\n-- RLS 활성화\nALTER TABLE public.users ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.events ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.participants ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.notices ENABLE ROW LEVEL SECURITY;\n\n-- RLS 정책: users\nCREATE POLICY \"users_self\" ON public.users\n  FOR ALL USING (auth.uid() = id);\n\n-- RLS 정책: events (host만 접근)\nCREATE POLICY \"events_host\" ON public.events\n  FOR ALL USING (host_id = auth.uid());\n\n-- RLS 정책: participants (누구나 INSERT, host만 SELECT/UPDATE)\nCREATE POLICY \"participants_insert\" ON public.participants\n  FOR INSERT WITH CHECK (true);\n\nCREATE POLICY \"participants_host_select\" ON public.participants\n  FOR SELECT USING (\n    EXISTS (SELECT 1 FROM public.events WHERE id = participants.event_id AND host_id = auth.uid())\n  );\n\nCREATE POLICY \"participants_host_update\" ON public.participants\n  FOR UPDATE USING (\n    EXISTS (SELECT 1 FROM public.events WHERE id = participants.event_id AND host_id = auth.uid())\n  );\n\n-- RLS 정책: notices (host만 쓰기, 공개 읽기)\nCREATE POLICY \"notices_host_write\" ON public.notices\n  FOR ALL USING (\n    EXISTS (SELECT 1 FROM public.events WHERE id = notices.event_id AND host_id = auth.uid())\n  );\n\nCREATE POLICY \"notices_public_read\" ON public.notices\n  FOR SELECT USING (true);\n\n-- auth trigger: 신규 사용자 자동으로 users 테이블에 삽입\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS TRIGGER AS $$\nBEGIN\n  INSERT INTO public.users (id, email, name, provider)\n  VALUES (\n    NEW.id,\n    NEW.email,\n    NEW.raw_user_meta_data->>'full_name',\n    NEW.raw_app_meta_data->>'provider'\n  );\n  RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;\n\nCREATE TRIGGER on_auth_user_created\n  AFTER INSERT ON auth.users\n  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();\n```\n\nSupabase 대시보드의 SQL Editor에서 이 스크립트를 실행한다.",
-        "testStrategy": "Supabase 대시보드에서 테이블 4개가 생성됨을 확인. RLS 활성화 상태 확인. Table Editor에서 각 테이블 구조(컬럼, 타입, 기본값) 확인. auth trigger가 생성되었는지 확인.",
+        "title": "DB 스키마 + RLS + TypeScript 타입 정의",
+        "description": "Supabase PostgreSQL 스키마를 설계하고 테이블/RLS SQL을 작성한다. 동시에 데이터 모델에 대응하는 TypeScript 타입과 Zod 검증 스키마를 정의한다.",
+        "details": "**1. `docs/schema.sql` 파일 생성:**\n\n```sql\nCREATE TABLE public.users (\n  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,\n  email TEXT NOT NULL,\n  name TEXT,\n  provider TEXT,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\nCREATE TABLE public.events (\n  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n  host_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,\n  title TEXT NOT NULL,\n  date TIMESTAMPTZ NOT NULL,\n  location TEXT NOT NULL,\n  fee INTEGER DEFAULT 0 NOT NULL,\n  capacity INTEGER,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\nCREATE TYPE participant_status AS ENUM ('applied', 'canceled');\nCREATE TYPE payment_status AS ENUM ('unpaid', 'paid');\n\nCREATE TABLE public.participants (\n  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,\n  name TEXT NOT NULL,\n  email TEXT,\n  is_email_opt_in BOOLEAN DEFAULT FALSE NOT NULL,\n  status participant_status DEFAULT 'applied' NOT NULL,\n  attended BOOLEAN,\n  payment_status payment_status DEFAULT 'unpaid' NOT NULL,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\nCREATE TABLE public.notices (\n  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,\n  content TEXT NOT NULL,\n  send_email BOOLEAN DEFAULT FALSE NOT NULL,\n  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL\n);\n\n-- RLS 활성화 및 정책 적용\nALTER TABLE public.users ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.events ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.participants ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.notices ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY \"users_self\" ON public.users FOR ALL USING (auth.uid() = id);\nCREATE POLICY \"events_host\" ON public.events FOR ALL USING (host_id = auth.uid());\nCREATE POLICY \"participants_insert\" ON public.participants FOR INSERT WITH CHECK (true);\nCREATE POLICY \"participants_host_select\" ON public.participants FOR SELECT USING (\n  EXISTS (SELECT 1 FROM public.events WHERE id = participants.event_id AND host_id = auth.uid())\n);\nCREATE POLICY \"participants_host_update\" ON public.participants FOR UPDATE USING (\n  EXISTS (SELECT 1 FROM public.events WHERE id = participants.event_id AND host_id = auth.uid())\n);\nCREATE POLICY \"notices_host_write\" ON public.notices FOR ALL USING (\n  EXISTS (SELECT 1 FROM public.events WHERE id = notices.event_id AND host_id = auth.uid())\n);\nCREATE POLICY \"notices_public_read\" ON public.notices FOR SELECT USING (true);\n\n-- auth trigger\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS TRIGGER AS $$\nBEGIN\n  INSERT INTO public.users (id, email, name, provider)\n  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name', NEW.raw_app_meta_data->>'provider');\n  RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;\n\nCREATE TRIGGER on_auth_user_created\n  AFTER INSERT ON auth.users\n  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();\n```\n\n**2. `types/index.ts` 파일 생성:**\n\n```typescript\nexport type ParticipantStatus = 'applied' | 'canceled';\nexport type PaymentStatus = 'unpaid' | 'paid';\n\nexport interface User { id: string; email: string; name: string | null; provider: string | null; created_at: string; }\nexport interface Event { id: string; host_id: string; title: string; date: string; location: string; fee: number; capacity: number | null; created_at: string; }\nexport interface Participant { id: string; event_id: string; name: string; email: string | null; is_email_opt_in: boolean; status: ParticipantStatus; attended: boolean | null; payment_status: PaymentStatus; created_at: string; }\nexport interface Notice { id: string; event_id: string; content: string; send_email: boolean; created_at: string; }\nexport interface EventWithStats extends Event { participant_count?: number; }\nexport interface PaymentSummary { total: number; paid: number; unpaid: number; totalAmount: number; }\n```\n\n**3. `lib/validations.ts` 파일 생성 (Zod 스키마):**\n\n```typescript\nimport { z } from 'zod';\n\nexport const createEventSchema = z.object({\n  title: z.string().min(1, '모임 제목을 입력해주세요'),\n  date: z.string().min(1, '날짜를 선택해주세요'),\n  location: z.string().min(1, '장소를 입력해주세요'),\n  fee: z.coerce.number().min(0).default(0),\n  capacity: z.coerce.number().min(1).nullable().default(null),\n});\n\nexport const applyParticipantSchema = z.object({\n  name: z.string().min(1, '이름을 입력해주세요'),\n  email: z.string().email('올바른 이메일 형식이 아닙니다').optional().or(z.literal('')),\n  is_email_opt_in: z.boolean().default(false),\n});\n\nexport const createNoticeSchema = z.object({\n  content: z.string().min(1, '공지 내용을 입력해주세요'),\n  send_email: z.boolean().default(false),\n});\n\nexport type CreateEventInput = z.infer<typeof createEventSchema>;\nexport type ApplyParticipantInput = z.infer<typeof applyParticipantSchema>;\nexport type CreateNoticeInput = z.infer<typeof createNoticeSchema>;\n```",
+        "testStrategy": "Supabase 대시보드에서 테이블 4개, RLS, trigger 생성 확인. npx tsc --noEmit으로 TypeScript 오류 없음 확인.",
         "priority": "high",
-        "dependencies": [
-          8
-        ],
-        "status": "pending",
+        "dependencies": [8],
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 10,
-        "title": "TypeScript 타입 정의",
-        "description": "데이터 모델에 대응하는 TypeScript 타입과 인터페이스를 정의한다.",
-        "details": "`types/index.ts` 파일 생성:\n\n```typescript\nexport type ParticipantStatus = 'applied' | 'canceled';\nexport type PaymentStatus = 'unpaid' | 'paid';\n\nexport interface User {\n  id: string;\n  email: string;\n  name: string | null;\n  provider: string | null;\n  created_at: string;\n}\n\nexport interface Event {\n  id: string;\n  host_id: string;\n  title: string;\n  date: string;  // ISO string\n  location: string;\n  fee: number;\n  capacity: number | null;\n  created_at: string;\n}\n\nexport interface Participant {\n  id: string;\n  event_id: string;\n  name: string;\n  email: string | null;\n  is_email_opt_in: boolean;\n  status: ParticipantStatus;\n  attended: boolean | null;\n  payment_status: PaymentStatus;\n  created_at: string;\n}\n\nexport interface Notice {\n  id: string;\n  event_id: string;\n  content: string;\n  send_email: boolean;\n  created_at: string;\n}\n\n// 대시보드용 모임 요약 (참여자 수 포함)\nexport interface EventWithStats extends Event {\n  participant_count?: number;\n}\n\n// 정산 요약\nexport interface PaymentSummary {\n  total: number;      // 취소 제외 참여자 수\n  paid: number;       // 입금 완료\n  unpaid: number;     // 미납\n  totalAmount: number; // paid * fee\n}\n```\n\nZod 스키마도 함께 정의 (`lib/validations.ts`):\n```typescript\nimport { z } from 'zod';\n\nexport const createEventSchema = z.object({\n  title: z.string().min(1, '모임 제목을 입력해주세요'),\n  date: z.string().min(1, '날짜를 선택해주세요'),\n  location: z.string().min(1, '장소를 입력해주세요'),\n  fee: z.coerce.number().min(0, '회비는 0 이상이어야 합니다').default(0),\n  capacity: z.coerce.number().min(1).nullable().default(null),\n});\n\nexport const applyParticipantSchema = z.object({\n  name: z.string().min(1, '이름을 입력해주세요'),\n  email: z.string().email('올바른 이메일 형식이 아닙니다').optional().or(z.literal('')),\n  is_email_opt_in: z.boolean().default(false),\n});\n\nexport const createNoticeSchema = z.object({\n  content: z.string().min(1, '공지 내용을 입력해주세요'),\n  send_email: z.boolean().default(false),\n});\n\nexport type CreateEventInput = z.infer<typeof createEventSchema>;\nexport type ApplyParticipantInput = z.infer<typeof applyParticipantSchema>;\nexport type CreateNoticeInput = z.infer<typeof createNoticeSchema>;\n```",
-        "testStrategy": "npm run build 또는 npx tsc --noEmit으로 TypeScript 타입 오류가 없는지 확인. 각 타입이 DB 스키마의 컬럼과 1:1 매핑되는지 코드 리뷰로 확인.",
+        "title": "Supabase OAuth 소셜 로그인 연동 (카카오/구글)",
+        "description": "Supabase Auth를 통한 카카오 및 구글 OAuth 로그인을 실제로 구현한다.",
+        "details": "**Supabase 대시보드 설정:**\n1. Authentication > Providers에서 Google OAuth 활성화 (Google Cloud Console에서 OAuth 클라이언트 ID/Secret 발급)\n2. Kakao OAuth 활성화 (카카오 개발자 센터 앱 등록, REST API 키 발급)\n\n**`components/login-form.tsx` 업데이트:**\n```typescript\n'use client';\nimport { createClient } from '@/lib/supabase/client';\n\nexport function LoginForm() {\n  const supabase = createClient();\n\n  const handleKakaoLogin = async () => {\n    await supabase.auth.signInWithOAuth({\n      provider: 'kakao',\n      options: { redirectTo: `${window.location.origin}/auth/callback` },\n    });\n  };\n\n  const handleGoogleLogin = async () => {\n    await supabase.auth.signInWithOAuth({\n      provider: 'google',\n      options: { redirectTo: `${window.location.origin}/auth/callback` },\n    });\n  };\n}\n```\n\n**`app/auth/callback/route.ts` 생성 (OAuth 콜백 핸들러):**\n```typescript\nimport { createClient } from '@/lib/supabase/server';\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request: Request) {\n  const { searchParams, origin } = new URL(request.url);\n  const code = searchParams.get('code');\n  const next = searchParams.get('next') ?? '/dashboard';\n\n  if (code) {\n    const supabase = await createClient();\n    const { error } = await supabase.auth.exchangeCodeForSession(code);\n    if (!error) return NextResponse.redirect(`${origin}${next}`);\n  }\n\n  return NextResponse.redirect(`${origin}/auth/error`);\n}\n```",
+        "testStrategy": "구글 OAuth 플로우: 로그인 버튼 클릭 → 구글 인증 → /dashboard 리다이렉트 확인. Supabase Authentication > Users에서 신규 사용자 생성 확인. users 테이블에 trigger로 row 삽입 확인.",
         "priority": "high",
-        "dependencies": [
-          9
-        ],
+        "dependencies": [9],
         "status": "pending",
         "subtasks": []
       },
       {
         "id": 11,
-        "title": "Supabase OAuth 소셜 로그인 연동 (카카오/구글)",
-        "description": "Supabase Auth를 통한 카카오 및 구글 OAuth 로그인을 실제로 구현한다.",
-        "details": "**Supabase 대시보드 설정:**\n1. Authentication > Providers에서 Google OAuth 활성화:\n   - Google Cloud Console에서 OAuth 2.0 클라이언트 ID/Secret 발급\n   - Redirect URL: `{SUPABASE_URL}/auth/v1/callback`\n2. Kakao OAuth 활성화:\n   - 카카오 개발자 센터에서 앱 생성 및 REST API 키 발급\n   - Redirect URL 등록\n\n**`components/login-form.tsx` 업데이트:**\n```typescript\n'use client';\nimport { createClient } from '@/lib/supabase/client';\n\nexport function LoginForm() {\n  const supabase = createClient();\n\n  const handleKakaoLogin = async () => {\n    await supabase.auth.signInWithOAuth({\n      provider: 'kakao',\n      options: {\n        redirectTo: `${window.location.origin}/auth/callback`,\n      },\n    });\n  };\n\n  const handleGoogleLogin = async () => {\n    await supabase.auth.signInWithOAuth({\n      provider: 'google',\n      options: {\n        redirectTo: `${window.location.origin}/auth/callback`,\n      },\n    });\n  };\n  // ... 버튼 렌더링\n}\n```\n\n**`app/auth/callback/route.ts` 생성 (OAuth 콜백 핸들러):**\n```typescript\nimport { createClient } from '@/lib/supabase/server';\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request: Request) {\n  const { searchParams, origin } = new URL(request.url);\n  const code = searchParams.get('code');\n  const next = searchParams.get('next') ?? '/dashboard';\n\n  if (code) {\n    const supabase = await createClient();\n    const { error } = await supabase.auth.exchangeCodeForSession(code);\n    if (!error) {\n      return NextResponse.redirect(`${origin}${next}`);\n    }\n  }\n\n  return NextResponse.redirect(`${origin}/auth/error`);\n}\n```\n\n기존 `app/auth/confirm/route.ts`는 OTP용이므로 유지하되, callback 라우트를 추가로 생성한다.\n로그인 성공 시 /dashboard로 리다이렉트.",
-        "testStrategy": "구글 OAuth 플로우: 구글 로그인 버튼 클릭 → 구글 인증 → /dashboard 리다이렉트 확인. Supabase 대시보드 Authentication > Users에서 신규 사용자가 생성됨을 확인. users 테이블에 트리거로 row가 삽입됨을 확인.",
+        "title": "대시보드 + 모임 생성 Supabase 연동 + 로그아웃/네비게이션 정리",
+        "description": "대시보드를 실제 Supabase 데이터로 연동하고 모임 생성 Server Action을 구현한다. 동시에 로그아웃 기능과 전체 페이지 네비게이션을 완성한다.",
+        "details": "**대시보드 연동:**\n\n`app/dashboard/page.tsx` (Server Component):\n```typescript\nconst supabase = await createClient();\nconst { data: { claims } } = await supabase.auth.getClaims();\nif (!claims) redirect('/auth/login');\n\nconst { data: events } = await supabase\n  .from('events')\n  .select('*, participants(count)')\n  .eq('host_id', claims.sub)\n  .order('date', { ascending: true });\n```\n\n`app/dashboard/actions.ts` (createEvent Server Action):\n- createEventSchema.parse()로 유효성 검사\n- supabase.from('events').insert() 후 /event/[id]로 redirect\n\n`app/dashboard/_components/create-event-form.tsx` (Client Component):\n- React Hook Form + Zod resolver 사용\n- useTransition으로 로딩 상태 관리\n\n**로그아웃 + 네비게이션:**\n\n`app/auth/actions.ts`에 signOut Server Action:\n```typescript\nexport async function signOut() {\n  const supabase = await createClient();\n  await supabase.auth.signOut();\n  redirect('/auth/login');\n}\n```\n\n`components/logout-button.tsx` (form action 방식):\n```tsx\nexport function LogoutButton() {\n  return (\n    <form action={signOut}>\n      <Button variant='ghost' type='submit'>로그아웃</Button>\n    </form>\n  );\n}\n```\n\n각 레이아웃에 일관된 헤더 + LogoutButton 적용:\n- `app/dashboard/layout.tsx`\n- `app/event/[eventId]/layout.tsx`\n\n스타터 킷 컴포넌트 정리: `components/tutorial/` 삭제, `app/page.tsx` → /dashboard 리다이렉트",
+        "testStrategy": "로그인 후 대시보드에서 실제 events 데이터 표시 확인. 모임 생성 후 DB 저장 및 /event/[id] 이동 확인. 로그아웃 후 /auth/login 리다이렉트 확인.",
         "priority": "high",
-        "dependencies": [
-          9,
-          10
-        ],
+        "dependencies": [10],
         "status": "pending",
         "subtasks": []
       },
       {
         "id": 12,
-        "title": "대시보드 페이지 Supabase 연동 (모임 목록 + 모임 생성)",
-        "description": "Mock 데이터를 실제 Supabase 데이터로 교체하고, 모임 생성 폼을 Server Action으로 구현한다.",
-        "details": "`app/dashboard/page.tsx` 업데이트 (Server Component):\n\n```typescript\nimport { createClient } from '@/lib/supabase/server';\nimport { redirect } from 'next/navigation';\n\nexport default async function DashboardPage() {\n  const supabase = await createClient();\n  const { data: { claims } } = await supabase.auth.getClaims();\n\n  if (!claims) redirect('/auth/login');\n\n  // 모임 목록 조회 (참여자 수 포함)\n  const { data: events } = await supabase\n    .from('events')\n    .select('*, participants(count)')\n    .eq('host_id', claims.sub)\n    .order('date', { ascending: true });\n\n  return <DashboardClient events={events ?? []} userId={claims.sub} />;\n}\n```\n\n`app/dashboard/actions.ts` Server Actions 생성:\n```typescript\n'use server';\nimport { createClient } from '@/lib/supabase/server';\nimport { createEventSchema } from '@/lib/validations';\nimport { redirect } from 'next/navigation';\n\nexport async function createEvent(formData: FormData) {\n  const supabase = await createClient();\n  const { data: { claims } } = await supabase.auth.getClaims();\n  if (!claims) throw new Error('Unauthorized');\n\n  const parsed = createEventSchema.parse({\n    title: formData.get('title'),\n    date: formData.get('date'),\n    location: formData.get('location'),\n    fee: formData.get('fee'),\n    capacity: formData.get('capacity'),\n  });\n\n  const { data, error } = await supabase\n    .from('events')\n    .insert({ ...parsed, host_id: claims.sub })\n    .select()\n    .single();\n\n  if (error) throw new Error(error.message);\n  redirect(`/event/${data.id}`);\n}\n```\n\n`app/dashboard/_components/create-event-form.tsx` Client Component:\n- React Hook Form + Zod resolver 사용\n- `createEvent` Server Action 호출\n- 로딩 상태 관리 (useTransition)",
-        "testStrategy": "로그인 후 대시보드에서 실제 Supabase의 events 데이터가 표시되는지 확인. 모임 생성 폼 작성 후 제출 시 DB에 저장되고 /event/[id]로 이동하는지 확인. RLS로 본인 모임만 조회되는지 확인.",
+        "title": "모임 상세 + 공지 + Resend 이메일 연동",
+        "description": "모임 상세 페이지를 실제 Supabase 데이터로 연동하고, 공지 작성 시 Resend를 통한 이메일 발송을 구현한다.",
+        "details": "`app/event/[eventId]/page.tsx` (Server Component):\n- getClaims()로 인증 확인 → 미인증 시 /auth/login redirect\n- host_id 기준으로 event 조회 → 없으면 /dashboard redirect\n- participants stats, notices 조회\n\n`app/event/[eventId]/actions.ts` (createNotice Server Action):\n```typescript\nexport async function createNotice(eventId: string, formData: FormData) {\n  const content = formData.get('content') as string;\n  const sendEmail = formData.get('send_email') === 'true';\n\n  const supabase = await createClient();\n  await supabase.from('notices').insert({ event_id: eventId, content, send_email: sendEmail });\n\n  if (sendEmail) {\n    const resend = new Resend(process.env.RESEND_API_KEY);\n    // is_email_opt_in=true, status=applied 참여자에게만 발송\n    const { data: recipients } = await supabase\n      .from('participants')\n      .select('name, email')\n      .eq('event_id', eventId)\n      .eq('status', 'applied')\n      .eq('is_email_opt_in', true)\n      .not('email', 'is', null);\n\n    if (recipients?.length) {\n      await Promise.all(\n        recipients.map(p =>\n          resend.emails.send({\n            from: 'GroupMeet <noreply@yourdomain.com>',\n            to: p.email!,\n            subject: `새 공지가 등록되었습니다`,\n            html: `<p>${p.name}님,</p><p>${content}</p>`,\n          })\n        )\n      );\n    }\n  }\n}\n```",
+        "testStrategy": "모임 상세 페이지에서 실제 DB 데이터 표시 확인. 공지 등록 후 notices 테이블 row 생성 확인. 이메일 발송 시 Resend 대시보드에서 로그 확인.",
         "priority": "high",
-        "dependencies": [
-          11
-        ],
+        "dependencies": [11],
         "status": "pending",
         "subtasks": []
       },
       {
         "id": 13,
-        "title": "모임 상세 페이지 Supabase 연동 (초대 링크, 공지 작성 + 이메일 발송)",
-        "description": "모임 상세 페이지를 실제 Supabase 데이터로 연동하고, 공지 작성 시 Resend를 통한 이메일 발송을 구현한다.",
-        "details": "`app/event/[eventId]/page.tsx` 업데이트:\n```typescript\nexport default async function EventDetailPage({ params }: { params: { eventId: string } }) {\n  const supabase = await createClient();\n  const { data: { claims } } = await supabase.auth.getClaims();\n  if (!claims) redirect('/auth/login');\n\n  const { data: event } = await supabase\n    .from('events')\n    .select('*')\n    .eq('id', params.eventId)\n    .eq('host_id', claims.sub)\n    .single();\n\n  if (!event) redirect('/dashboard');\n\n  const { data: stats } = await supabase\n    .from('participants')\n    .select('status, attended')\n    .eq('event_id', params.eventId);\n\n  const { data: notices } = await supabase\n    .from('notices')\n    .select('*')\n    .eq('event_id', params.eventId)\n    .order('created_at', { ascending: false });\n\n  return <EventDetailClient event={event} stats={stats ?? []} notices={notices ?? []} />;\n}\n```\n\n`app/event/[eventId]/actions.ts` Server Actions:\n```typescript\n'use server';\nimport { Resend } from 'resend';\nimport { createClient } from '@/lib/supabase/server';\n\nexport async function createNotice(eventId: string, formData: FormData) {\n  const content = formData.get('content') as string;\n  const sendEmail = formData.get('send_email') === 'true';\n\n  const supabase = await createClient();\n\n  // 공지 저장\n  const { error } = await supabase\n    .from('notices')\n    .insert({ event_id: eventId, content, send_email: sendEmail });\n\n  if (error) throw new Error(error.message);\n\n  // 이메일 발송 (sendEmail이 true인 경우)\n  if (sendEmail) {\n    const { data: event } = await supabase\n      .from('events').select('title').eq('id', eventId).single();\n\n    const { data: recipients } = await supabase\n      .from('participants')\n      .select('name, email')\n      .eq('event_id', eventId)\n      .eq('status', 'applied')\n      .eq('is_email_opt_in', true)\n      .not('email', 'is', null);\n\n    if (recipients && recipients.length > 0) {\n      const resend = new Resend(process.env.RESEND_API_KEY);\n      await Promise.all(\n        recipients.map(p =>\n          resend.emails.send({\n            from: 'GroupMeet <noreply@yourdomain.com>',\n            to: p.email!,\n            subject: `[${event?.title}] 새 공지가 등록되었습니다`,\n            html: `<p>${p.name}님,</p><p>${content}</p>`,\n          })\n        )\n      );\n    }\n  }\n}\n```\n\nResend 환경 변수: `.env.local`에 `RESEND_API_KEY` 추가",
-        "testStrategy": "모임 상세 페이지에서 실제 DB의 모임 정보가 표시되는지 확인. 공지 등록 버튼 클릭 후 notices 테이블에 row가 생성됨을 확인. 이메일 발송 체크 시 Resend 대시보드에서 이메일 발송 로그 확인. is_email_opt_in=true, status=applied 참여자에게만 발송됨을 확인.",
+        "title": "모임 관리 + 참석/정산 Supabase 연동",
+        "description": "모임 관리 페이지를 실제 Supabase 데이터로 연동하고, 참석 체크와 입금 상태 업데이트를 Server Action으로 구현한다.",
+        "details": "`app/event/[eventId]/manage/page.tsx` (Server Component):\n- 인증 및 host_id 권한 확인\n- participants 전체 조회 (created_at 오름차순)\n\n`app/event/[eventId]/manage/actions.ts`:\n```typescript\nexport async function updateAttendance(participantId: string, attended: boolean) {\n  const supabase = await createClient();\n  await supabase.from('participants').update({ attended }).eq('id', participantId);\n}\n\nexport async function updatePaymentStatus(participantId: string, paymentStatus: 'unpaid' | 'paid') {\n  const supabase = await createClient();\n  await supabase.from('participants').update({ payment_status: paymentStatus }).eq('id', participantId);\n}\n```\n\n`ManageClient` 컴포넌트:\n- useState로 즉각적인 UI 업데이트\n- Server Action 호출로 DB 동기화\n- calcSummary 함수로 정산 요약 계산 (취소자 제외)",
+        "testStrategy": "관리 페이지에서 실제 participants 데이터 표시 확인. 참석 체크 및 입금 상태 토글 후 DB 값 변경 확인. 정산 요약 금액 정확성 확인.",
         "priority": "high",
-        "dependencies": [
-          12
-        ],
+        "dependencies": [12],
         "status": "pending",
         "subtasks": []
       },
       {
         "id": 14,
-        "title": "모임 관리 페이지 Supabase 연동 (참여자 목록, 참석/정산 업데이트)",
-        "description": "모임 관리 페이지를 실제 Supabase 데이터로 연동하고, 참석 체크와 입금 상태 업데이트를 Server Action으로 구현한다.",
-        "details": "`app/event/[eventId]/manage/page.tsx` 업데이트:\n```typescript\nexport default async function ManagePage({ params }: { params: { eventId: string } }) {\n  const supabase = await createClient();\n  const { data: { claims } } = await supabase.auth.getClaims();\n  if (!claims) redirect('/auth/login');\n\n  const { data: event } = await supabase\n    .from('events').select('*').eq('id', params.eventId).eq('host_id', claims.sub).single();\n  if (!event) redirect('/dashboard');\n\n  const { data: participants } = await supabase\n    .from('participants')\n    .select('*')\n    .eq('event_id', params.eventId)\n    .order('created_at', { ascending: true });\n\n  return <ManageClient event={event} participants={participants ?? []} />;\n}\n```\n\n`app/event/[eventId]/manage/actions.ts`:\n```typescript\n'use server';\nimport { createClient } from '@/lib/supabase/server';\n\nexport async function updateAttendance(participantId: string, attended: boolean) {\n  const supabase = await createClient();\n  const { error } = await supabase\n    .from('participants')\n    .update({ attended })\n    .eq('id', participantId);\n  if (error) throw new Error(error.message);\n}\n\nexport async function updatePaymentStatus(participantId: string, paymentStatus: 'unpaid' | 'paid') {\n  const supabase = await createClient();\n  const { error } = await supabase\n    .from('participants')\n    .update({ payment_status: paymentStatus })\n    .eq('id', participantId);\n  if (error) throw new Error(error.message);\n}\n```\n\n`ManageClient` 컴포넌트에서:\n- useOptimistic 또는 useState로 즉각적인 UI 업데이트\n- Server Action 호출로 DB 동기화\n- 정산 요약: `calcSummary` 함수 적용 (Task 6에서 정의한 로직)",
-        "testStrategy": "관리 페이지에서 실제 participants 데이터가 표시되는지 확인. 참석 체크박스 토글 후 DB에서 attended 값이 변경됨을 확인. 입금 상태 토글 후 DB에서 payment_status 값이 변경됨을 확인. 정산 요약 금액이 올바르게 계산되는지 확인.",
+        "title": "참여 신청 + 취소 Supabase 연동",
+        "description": "참여 신청 페이지를 실제 Supabase 데이터로 연동하고, 신청 및 취소 로직을 구현한다.",
+        "details": "`app/join/[eventId]/page.tsx` (Server Component):\n- supabase.from('events').select().eq('id', params.eventId).single() → 없으면 notFound()\n- 최신 공지 1건 조회 (maybeSingle)\n- JoinClient에 props 전달\n\n`app/join/[eventId]/actions.ts`:\n```typescript\nexport async function applyToEvent(eventId: string, formData: FormData) {\n  const parsed = applyParticipantSchema.parse({ ... });\n  if (!parsed.email) parsed.is_email_opt_in = false;\n\n  const supabase = await createClient();\n  const { data } = await supabase\n    .from('participants')\n    .insert({ event_id: eventId, ...parsed, status: 'applied' })\n    .select('id').single();\n\n  return { participantId: data.id };\n}\n\nexport async function cancelParticipation(participantId: string) {\n  const supabase = await createClient();\n  await supabase.from('participants').update({ status: 'canceled' }).eq('id', participantId);\n}\n```\n\n**중요**: participants RLS에서 anon 역할 INSERT 허용 확인 (Supabase 대시보드).",
+        "testStrategy": "비로그인 상태에서 /join/[실제eventId] 접근 시 모임 정보 표시 확인. 신청 후 participants 테이블 row 생성 확인. 취소 후 status=canceled 변경 확인.",
         "priority": "high",
-        "dependencies": [
-          13
-        ],
+        "dependencies": [12],
         "status": "pending",
         "subtasks": []
       },
       {
         "id": 15,
-        "title": "참여 신청 페이지 Supabase 연동 (신청 + 취소)",
-        "description": "참여 신청 페이지를 실제 Supabase 데이터로 연동하고, 신청 및 취소 로직을 구현한다.",
-        "details": "`app/join/[eventId]/page.tsx` 업데이트:\n```typescript\n// Server Component로 모임 정보 및 최신 공지 조회\nexport default async function JoinPage({ params }: { params: { eventId: string } }) {\n  const supabase = await createClient();\n\n  const { data: event } = await supabase\n    .from('events').select('*').eq('id', params.eventId).single();\n\n  if (!event) notFound();\n\n  const { data: latestNotice } = await supabase\n    .from('notices')\n    .select('content, created_at')\n    .eq('event_id', params.eventId)\n    .order('created_at', { ascending: false })\n    .limit(1)\n    .maybeSingle();\n\n  return <JoinClient event={event} latestNotice={latestNotice} />;\n}\n```\n\n`app/join/[eventId]/actions.ts`:\n```typescript\n'use server';\nimport { createClient } from '@/lib/supabase/server';\nimport { applyParticipantSchema } from '@/lib/validations';\n\nexport async function applyToEvent(eventId: string, formData: FormData) {\n  const parsed = applyParticipantSchema.parse({\n    name: formData.get('name'),\n    email: formData.get('email') || undefined,\n    is_email_opt_in: formData.get('is_email_opt_in') === 'true',\n  });\n\n  // 이메일 없으면 opt_in false 강제\n  if (!parsed.email) parsed.is_email_opt_in = false;\n\n  const supabase = await createClient();\n  const { data, error } = await supabase\n    .from('participants')\n    .insert({\n      event_id: eventId,\n      name: parsed.name,\n      email: parsed.email || null,\n      is_email_opt_in: parsed.is_email_opt_in,\n      status: 'applied',\n    })\n    .select('id')\n    .single();\n\n  if (error) throw new Error(error.message);\n  return { participantId: data.id };\n}\n\nexport async function cancelParticipation(participantId: string) {\n  const supabase = await createClient();\n  const { error } = await supabase\n    .from('participants')\n    .update({ status: 'canceled' })\n    .eq('id', participantId);\n  if (error) throw new Error(error.message);\n}\n```\n\n`JoinClient` 컴포넌트:\n- React Hook Form + Zod로 폼 관리\n- participantId를 useState로 저장 (세션 내 취소 기능 지원)\n- 취소 후 재신청 가능 (폼 초기화)\n- 이메일 미입력 시 is_email_opt_in 자동 false\n\n**중요**: participants 테이블 RLS에서 서비스 롤 없이 anon 유저가 INSERT 가능해야 함. Supabase 대시보드에서 anon 역할에 INSERT 허용 확인.",
-        "testStrategy": "비로그인 상태에서 /join/[실제eventId] 접근 시 모임 정보 표시 확인. 이름 입력 후 신청 시 participants 테이블에 row가 생성됨을 확인. 신청 완료 후 취소 버튼 클릭 시 status가 canceled로 변경됨을 확인. 이메일 미입력 시 is_email_opt_in이 false로 저장됨을 확인.",
-        "priority": "high",
-        "dependencies": [
-          13
-        ],
+        "title": "기본 에러 처리 (404 + 폼 에러)",
+        "description": "MVP에 필요한 최소한의 에러 처리를 구현한다. not-found 페이지, Server Action 에러 표시, 폼 유효성 검사 에러에 집중한다.",
+        "details": "1. **404 처리**:\n   - `app/join/[eventId]/not-found.tsx`: '존재하지 않는 모임입니다' + 홈으로 버튼\n   - `app/not-found.tsx`: 기본 404 페이지\n\n2. **Server Action 에러 표시**:\n   - useActionState (React 19) 또는 try/catch로 에러 캐치\n   - 에러 메시지를 폼 하단에 `<p className='text-sm text-red-500'>{error}</p>`로 표시\n\n3. **폼 유효성 검사 에러**:\n   - React Hook Form의 formState.errors로 인라인 에러 메시지 표시\n   - Input 하단에 에러 텍스트 추가\n\n*skeleton loading UI, loading.tsx, error.tsx는 MVP 이후 개선*",
+        "testStrategy": "존재하지 않는 eventId로 /join/[id] 접근 시 not-found UI 표시 확인. 폼에서 잘못된 값 입력 시 인라인 에러 메시지 표시 확인.",
+        "priority": "medium",
+        "dependencies": [11, 12, 13, 14],
         "status": "pending",
         "subtasks": []
       },
       {
         "id": 16,
-        "title": "로그아웃 기능 및 네비게이션 최종 정리",
-        "description": "로그아웃 Server Action을 구현하고, 모든 페이지의 네비게이션을 최종 정리한다.",
-        "details": "`app/auth/actions.ts` (또는 `app/dashboard/actions.ts`에 추가):\n```typescript\n'use server';\nimport { createClient } from '@/lib/supabase/server';\nimport { redirect } from 'next/navigation';\n\nexport async function signOut() {\n  const supabase = await createClient();\n  await supabase.auth.signOut();\n  redirect('/auth/login');\n}\n```\n\n`components/logout-button.tsx` 업데이트:\n```tsx\n'use client';\nimport { signOut } from '@/app/auth/actions';\nimport { Button } from '@/components/ui/button';\n\nexport function LogoutButton() {\n  return (\n    <form action={signOut}>\n      <Button variant='ghost' type='submit'>로그아웃</Button>\n    </form>\n  );\n}\n```\n\n네비게이션 정리:\n1. `app/dashboard/layout.tsx`: 'GroupMeet' 로고(링크: /dashboard) + LogoutButton\n2. `app/event/[eventId]/layout.tsx`: 'GroupMeet' 로고 + 뒤로가기(/dashboard) + LogoutButton\n3. `app/event/[eventId]/manage/layout.tsx`: 뒤로가기(/event/[eventId]) + LogoutButton\n4. 기존 `app/protected/` 라우트와 스타터 킷 컴포넌트 정리:\n   - `components/tutorial/` 디렉토리 삭제\n   - `components/deploy-button.tsx`, `hero.tsx` 삭제\n   - `app/page.tsx`를 /auth/login 또는 /dashboard로 리다이렉트",
-        "testStrategy": "로그아웃 버튼 클릭 시 /auth/login으로 이동하는지 확인. 로그아웃 후 /dashboard 접근 시 /auth/login으로 리다이렉트되는지 확인. 각 페이지의 뒤로가기/로고 링크가 올바르게 동작하는지 확인.",
+        "title": "Vercel 배포 + E2E 테스트",
+        "description": "전체 사용자 여정을 end-to-end로 테스트하고 Vercel에 배포한다.",
+        "details": "**E2E 테스트 시나리오:**\n\n1. 운영자 여정: 구글/카카오 로그인 → 대시보드 → 모임 생성 → 상세 페이지 → 초대 링크 복사 → 공지 작성 → 참여자 관리 → 참석/정산 처리\n2. 참여자 여정: 초대 링크 접근 → 이름 입력 → 신청 → 완료 메시지 → 취소 → 재신청\n3. 보안 테스트: 타 사용자 모임 접근 시 /dashboard 리다이렉트, 비로그인 /dashboard 접근 시 /auth/login 리다이렉트\n\n**Vercel 배포:**\n```bash\nnpx vercel --prod\n```\n\nVercel 대시보드 환경 변수 설정:\n- `NEXT_PUBLIC_SUPABASE_URL`\n- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`\n- `RESEND_API_KEY`\n\nSupabase Authentication > URL Configuration:\n- Site URL: 배포된 Vercel URL 추가\n- Redirect URLs: `https://your-vercel-domain.vercel.app/auth/callback` 추가",
+        "testStrategy": "Vercel 프리뷰 URL에서 전체 운영자/참여자 여정 완료 확인. npm run build 오류 없음 확인. Supabase RLS 프로덕션 동작 확인.",
         "priority": "medium",
-        "dependencies": [
-          12,
-          14,
-          15
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 17,
-        "title": "에러 처리 및 로딩 UI 구현",
-        "description": "Next.js의 error.tsx, loading.tsx, not-found.tsx를 사용하여 사용자 친화적인 에러 처리와 로딩 상태를 구현한다.",
-        "details": "1. **로딩 상태** (`loading.tsx`):\n   - `app/dashboard/loading.tsx`: 스켈레톤 카드 3개 표시\n   - `app/event/[eventId]/loading.tsx`: 스켈레톤 UI\n   - `app/event/[eventId]/manage/loading.tsx`: 스켈레톤 테이블\n\n2. **에러 처리** (`error.tsx`):\n   - `app/dashboard/error.tsx`: '모임 목록을 불러오는 데 실패했습니다' + 재시도 버튼\n   - `app/event/[eventId]/error.tsx`: 일반 에러 메시지\n\n3. **404 처리** (`not-found.tsx`):\n   - `app/join/[eventId]/not-found.tsx`: '존재하지 않는 모임입니다' + 홈으로 버튼\n\n4. **폼 에러 처리**:\n   - Server Action에서 발생하는 에러를 useActionState (React 19) 또는 try/catch로 처리\n   - 에러 메시지를 페이지에 표시\n\n5. **Zod 검증 에러**:\n   - React Hook Form의 formState.errors로 인라인 에러 메시지 표시\n   - Input 컴포넌트 하단에 에러 텍스트 표시\n\n스켈레톤 예시:\n```tsx\nfunction Skeleton({ className }: { className?: string }) {\n  return <div className={cn('animate-pulse rounded-md bg-muted', className)} />;\n}\n```",
-        "testStrategy": "존재하지 않는 이벤트 ID로 /join/[nonexistentId] 접근 시 not-found UI가 표시되는지 확인. 네트워크 오류 시뮬레이션 후 에러 UI가 표시되는지 확인. 폼에서 잘못된 값 입력 시 인라인 에러 메시지가 표시되는지 확인.",
-        "priority": "medium",
-        "dependencies": [
-          12,
-          13,
-          14,
-          15
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 18,
-        "title": "최종 통합 테스트 및 Vercel 배포",
-        "description": "전체 사용자 여정을 end-to-end로 테스트하고, Vercel에 배포한다.",
-        "details": "**통합 테스트 시나리오:**\n\n1. **운영자 여정**:\n   - 구글/카카오로 로그인 → 대시보드 이동\n   - 모임 생성 (제목, 날짜, 장소, 회비, 인원 입력) → 모임 상세 이동\n   - 초대 링크 복사 확인\n   - 공지 작성 + 이메일 발송 체크 → 공지 등록\n   - '참여자 관리' 버튼 → 관리 페이지\n   - 참석 체크 + 입금 상태 변경 → 정산 요약 확인\n\n2. **참여자 여정**:\n   - 초대 링크로 /join/[id] 접근 (비로그인)\n   - 이름 입력 + 신청 → 완료 메시지 확인\n   - 취소 버튼 → 폼 복귀 확인\n   - 재신청 확인\n\n3. **보안 테스트**:\n   - 다른 사용자의 모임 ID로 /event/[otherId] 접근 시 /dashboard로 리다이렉트 확인\n   - 비로그인 상태에서 /dashboard 접근 시 /auth/login으로 리다이렉트 확인\n\n**Vercel 배포:**\n```bash\n# Vercel CLI 배포\nnpx vercel --prod\n```\n\nVercel 대시보드에서 환경 변수 설정:\n- `NEXT_PUBLIC_SUPABASE_URL`\n- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`\n- `RESEND_API_KEY`\n\nSupabase 대시보드 Authentication > URL Configuration:\n- Site URL: 배포된 Vercel URL 추가\n- Redirect URLs: `https://your-vercel-domain.vercel.app/auth/callback` 추가",
-        "testStrategy": "Vercel 프리뷰 URL에서 전체 운영자/참여자 여정 완료 확인. 프로덕션 빌드에서 npm run build 오류 없음 확인. Supabase RLS가 프로덕션 환경에서 올바르게 동작하는지 확인.",
-        "priority": "medium",
-        "dependencies": [
-          16,
-          17
-        ],
+        "dependencies": [15],
         "status": "pending",
         "subtasks": []
       }
     ],
     "metadata": {
       "created": "2026-04-20T00:00:00.000Z",
-      "updated": "2026-04-20T13:23:02.843Z",
+      "updated": "2026-04-23T00:00:00.000Z",
       "description": "Tasks for master context"
     }
   }

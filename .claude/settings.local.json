@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx eslint --max-warnings=0 \"$CLAUDE_TOOL_OUTPUT_FILE_PATH\""
+            "command": "npm run lint"
           }
         ]
       }
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -Command \"& { Add-Type -AssemblyName System.Windows.Forms; $n = New-Object System.Windows.Forms.NotifyIcon; $n.Icon = [System.Drawing.SystemIcons]::Information; $n.Visible = $true; $n.ShowBalloonTip(3000, 'Claude Code', 'Task complete', [System.Windows.Forms.ToolTipIcon]::Info); Start-Sleep 3; $n.Dispose() }\""
+            "command": "powershell -Command \"& { Add-Type -AssemblyName System.Windows.Forms; \\$n = New-Object System.Windows.Forms.NotifyIcon; \\$n.Icon = [System.Drawing.SystemIcons]::Information; \\$n.Visible = \\$true; \\$n.ShowBalloonTip(3000, 'Claude Code', 'Task complete', [System.Windows.Forms.ToolTipIcon]::Info); Start-Sleep 3; \\$n.Dispose() }\""
           }
         ]
       }

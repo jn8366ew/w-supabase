@@ -2,11 +2,25 @@
 
 ## 개요
 
-**프로젝트**: GroupMeet MVP  
-**목적**: 카카오톡 기반 소규모 모임 운영자가 참여자 모집, 공지, 정산을 링크 하나로 처리  
-**최종 업데이트**: 2026-04-20
+**프로젝트**: GroupMeet MVP
+**목적**: 카카오톡 기반 소규모 모임 운영자가 참여자 모집, 공지, 정산을 링크 하나로 처리할 수 있는 경량 웹 서비스
+**최종 업데이트**: 2026-04-27 (Phase 2 완료)
 
-> **개발 전략 변경 (2026-04-20)**: UI/UX를 먼저 mock data로 빠르게 구현하여 검토·보완한 뒤, 확정된 설계 기반으로 DB 스키마와 Supabase를 설정하는 순서로 변경.
+> **개발 전략**: Mock UI를 먼저 빠르게 구현하여 전체 사용자 흐름과 UX를 확정한 뒤, 확정된 설계 기반으로 DB 스키마와 Supabase 연동, 인증, 기능 연동, 배포 순으로 진행합니다.
+
+> 본 로드맵의 Task 번호(Task-001 ~ Task-016)는 `.taskmaster/tasks/tasks.json`의 Task ID와 1:1로 대응됩니다.
+
+---
+
+## 현재 프로젝트 상태
+
+- ✅ Next.js 16 (App Router) + React 19 + TypeScript 초기 세팅
+- ✅ Supabase SSR 인증 구조 세팅 (`@supabase/ssr`, 쿠키 기반 세션)
+- ✅ shadcn/ui 기본 컴포넌트 설치 (Button, Card, Input, Label, Checkbox, DropdownMenu, Badge)
+- ✅ TailwindCSS + next-themes 다크 모드 설정
+- ✅ 루트 `proxy.ts` 미들웨어 (비인증 사용자 `/auth/login` 리다이렉션)
+- ✅ PRD 문서 작성 완료 (`docs/PRD.md`)
+- ✅ Task Master AI 기반 태스크 관리 구조 정비 (`.taskmaster/tasks/tasks.json`)
 
 ---
 
@@ -20,142 +34,81 @@
 
 ---
 
-## 현재 프로젝트 상태
+## Phase 0: 프로젝트 초기화 ✅
 
-- ✅ Next.js 16 (App Router) + React 19 + TypeScript 초기 세팅
-- ✅ Supabase SSR 인증 구조 세팅 (`@supabase/ssr`, 쿠키 기반 세션)
-- ✅ shadcn/ui 기본 컴포넌트 설치 (Button, Card, Input, Label, Checkbox, DropdownMenu, Badge)
-- ✅ TailwindCSS + next-themes 다크 모드 설정
-- ✅ 루트 `proxy.ts` 미들웨어 (비인증 사용자 `/auth/login` 리다이렉션)
-- ✅ PRD 문서 작성 완료 (`docs/PRD.md`)
-
----
-
-## Phase 0: 환경 설정
-
-> **목표**: Supabase 프로젝트 연결과 환경 변수만 선행 구성 (스키마/RLS는 Phase 2에서 진행)
+> **목표**: 이후 Phase에서 필요한 패키지 설치와 공개 라우트 접근 허용을 포함한 기본 환경을 정비
+> **관련 기능**: 전체 Phase의 기반
 
 | Task | 설명 | 상태 |
 |------|------|------|
-| **Task-000** | Supabase 프로젝트 생성 및 `.env.local` 환경 변수 설정 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) | ⬜ |
-| **Task-001** | Supabase 클라이언트 연결 테스트 — 브라우저/서버/미들웨어 클라이언트 동작 확인 | ⬜ |
-
-> **주의**: DB 스키마 생성, RLS 정책, TypeScript 타입 생성은 **Phase 2**에서 UI 확정 이후 수행.
+| **Task-001** | 패키지 설치 및 프로젝트 초기화 — Resend, date-fns, zod 등 MVP 구현에 필요한 의존성 설치 및 환경 변수 템플릿(`.env.local.example`) 정비 | ✅ |
+| **Task-002** | 미들웨어 수정: `/join/*` 공개 접근 허용 — 루트 `proxy.ts`에서 비로그인 참여자도 참여 신청 페이지에 접근 가능하도록 보호 라우트 예외 처리 | ✅ |
 
 ---
 
-## Phase 1: UI/UX Mock 구현
+## Phase 1: Mock UI 구현 ✅
 
-> **목표**: 모든 페이지를 mock data로 빠르게 구현하여 전체 사용자 흐름과 UX를 시각적으로 확정
+> **목표**: 모든 주요 페이지를 mock data로 빠르게 구현하여 전체 사용자 흐름과 UX를 시각적으로 확정
 > **관련 기능**: F001, F002, F003, F004, F005, F007, F008, F009, F010, F011 (UI만)
 
 | Task | 설명 | 상태 |
 |------|------|------|
-| **Task-100** | 로그인 페이지 UI (mock) — 카카오/구글 로그인 버튼만 표시, OAuth 연동 없이 클릭 시 대시보드로 이동 (F010) | ⬜ |
-| **Task-101** | 대시보드 페이지 UI — mock 모임 목록 카드 표시 (제목, 날짜, 장소, 참여자 수) (F011) | ⬜ |
-| **Task-102** | 모임 생성 폼 UI — 제목/날짜/장소/회비/인원 입력, mock 저장 후 상세 페이지 이동 (F001) | ⬜ |
-| **Task-103** | 모임 상세 페이지 UI — mock 모임 정보 표시, 초대 링크 생성/복사 버튼 (F002) | ⬜ |
-| **Task-104** | 모임 관리 페이지 UI — mock 참여자 목록 테이블, 참석 체크 토글, 정산(입금) 토글, 요약 통계 (F007, F008, F009) | ⬜ |
-| **Task-105** | 참여 신청 페이지 UI (공개) — mock 모임 정보/공지 표시, 신청/취소 폼 (이름, 이메일, 이메일 동의) (F003, F004) | ⬜ |
-| **Task-106** | 공지 작성 폼 UI — 텍스트 영역 + "이메일로 발송" 체크박스, mock 저장 (F005) | ⬜ |
-| **Task-107** | 전체 UI/UX 검토 및 보완 — 운영자/참여자 여정 Walkthrough, 반응형 확인, 컴포넌트 통일성/네비게이션/빈 상태/에러 상태 보강 | ⬜ |
+| **Task-003** | 로그인 페이지 Mock UI 구현 — 카카오/구글 소셜 로그인 버튼만 표시, OAuth 연동 없이 클릭 시 대시보드로 이동 (F010) | ✅ |
+| **Task-004** | 대시보드 + 모임 생성 폼 Mock UI 구현 — mock 모임 목록 카드(제목/날짜/장소/참여자 수) 및 모임 생성 폼(제목/날짜/장소/회비/인원) (F001, F011) | ✅ |
+| **Task-005** | 모임 상세 페이지 Mock UI 구현 — mock 모임 정보 표시, 초대 링크 생성/복사 버튼, 공지 작성 폼 UI (F002, F005) | ✅ |
+| **Task-006** | 모임 관리 페이지 Mock UI 구현 — mock 참여자 목록 테이블, 참석 체크 토글, 정산(입금) 토글, 요약 통계 (F007, F008, F009) | ✅ |
+| **Task-007** | 참여 신청 페이지 Mock UI 구현 (비로그인 공개) — mock 모임 정보/공지 표시, 신청/취소 폼(이름/이메일/이메일 동의) (F003, F004) | ✅ |
+| **Task-008** | Mock UI 전체 검토 및 UX 보완 — 운영자/참여자 여정 Walkthrough, 반응형(모바일/카카오톡 인앱 브라우저) 확인, 컴포넌트 통일성/네비게이션/빈 상태/에러 상태 보강 | ✅ |
 
 > **산출물**: `lib/mock/` 디렉터리에 mock data 및 타입 정의, 모든 페이지 라우트 골격 완성.
 
 ---
 
-## Phase 2: DB 스키마 및 Supabase 세팅
+## Phase 2: DB + 타입 정의 ✅
 
-> **목표**: Phase 1에서 확정된 UI/데이터 요구에 맞춰 DB 스키마, RLS 정책, 타입을 확정
+> **목표**: Phase 1에서 확정된 UI/데이터 요구에 맞춰 DB 스키마, RLS 정책, TypeScript 타입을 확정
+> **관련 기능**: 전체 기능의 데이터 기반
 
 | Task | 설명 | 상태 |
 |------|------|------|
-| **Task-200** | DB 스키마 생성 — `users`, `events`, `participants`, `notices` 테이블 (Phase 1 UI 기반으로 컬럼 확정) | ⬜ |
-| **Task-201** | RLS 정책 적용 — `events`/`notices` 쓰기: `host_id = auth.uid()`, `participants` 삽입: 누구나, 업데이트: 운영자만 | ⬜ |
-| **Task-202** | TypeScript 타입 자동 생성 (`supabase gen types typescript`) 및 `lib/database.types.ts` 배치 | ⬜ |
-| **Task-203** | `lib/mock/` 타입과 실제 DB 타입 매핑 검증 — 불일치 시 UI 또는 스키마 보정 | ⬜ |
+| **Task-009** | DB 스키마 + RLS + TypeScript 타입 정의 — `users`, `events`, `participants`, `notices` 테이블 생성, RLS 정책 적용(events/notices 쓰기: `host_id = auth.uid()`, participants 삽입: 누구나, 업데이트: 운영자만), `supabase gen types typescript`로 `lib/database.types.ts` 생성 및 mock 타입과 매핑 검증 | ✅ |
 
 ---
 
-## Phase 3: 인증 연동 (F010)
+## Phase 3: 인증 연동
 
-> **목표**: mock 로그인을 실제 Supabase OAuth로 교체
+> **목표**: Phase 1의 mock 로그인을 실제 Supabase OAuth로 교체
 > **관련 기능**: F010
 
 | Task | 설명 | 상태 |
 |------|------|------|
-| **Task-300** | Supabase OAuth Provider 연동 — 카카오/구글 앱 등록, 콜백 라우트 확인 | ⬜ |
-| **Task-301** | 로그인 페이지 mock → 실제 OAuth 버튼 교체 (Task-100 대체) | ⬜ |
-| **Task-302** | 보호 라우트 동작 확인 — 루트 `proxy.ts`에서 비인증 사용자 리다이렉션 검증 | ⬜ |
-| **Task-303** | 인증 흐름 E2E 확인 — 로그인 성공 → 대시보드 이동, 실패 → 에러 메시지 | ⬜ |
+| **Task-010** | Supabase OAuth 소셜 로그인 연동 (카카오/구글) — OAuth Provider 등록, 콜백 라우트 확인, 로그인 페이지 mock 버튼을 실제 OAuth 버튼으로 교체, 보호 라우트 동작 및 로그인 성공/실패 흐름 검증 | ⬜ |
 
 ---
 
-## Phase 4: 모임 기능 연동 (F001, F011, F002)
+## Phase 4: 기능 연동
 
-> **목표**: 대시보드/모임 생성/모임 상세의 mock data를 실제 Supabase 데이터로 교체
-> **관련 기능**: F001, F002, F011
+> **목표**: Mock data를 실제 Supabase 데이터 CRUD 및 Resend 이메일 발송으로 교체
+> **관련 기능**: F001, F002, F003, F004, F005, F006, F007, F008, F009, F011
 
 | Task | 설명 | 상태 |
 |------|------|------|
-| **Task-400** | 대시보드 mock → 실제 `events` 조회 (host_id 기준) (Task-101 대체) | ⬜ |
-| **Task-401** | 모임 생성 폼 mock → 실제 `events` 테이블 INSERT (Task-102 대체) | ⬜ |
-| **Task-402** | 모임 상세 페이지 mock → 실제 조회, 초대 링크(slug/id 기반) 생성 및 클립보드 복사 (Task-103 대체) | ⬜ |
-| **Task-403** | E2E 확인 — 모임 생성 → 상세 페이지 → 링크 복사 전체 흐름 | ⬜ |
+| **Task-011** | 대시보드 + 모임 생성 Supabase 연동 + 로그아웃/네비게이션 정리 — 대시보드 mock을 실제 `events` 조회(host_id 기준)로 교체, 모임 생성 폼을 실제 INSERT로 교체, 공통 네비게이션 및 로그아웃 동작 정비 (F001, F002, F011) | ⬜ |
+| **Task-012** | 모임 상세 + 공지 + Resend 이메일 연동 — 모임 상세 mock을 실제 조회로 교체, 초대 링크(slug/id 기반) 생성 및 복사, 공지 작성 mock을 실제 `notices` INSERT로 교체, Resend를 통해 `is_email_opt_in=true` 참여자에게 공지 이메일 발송 (F002, F005, F006) | ⬜ |
+| **Task-013** | 모임 관리 + 참석/정산 Supabase 연동 — 참여자 목록 mock을 실제 `participants` 조회로 교체, 상태 필터(전체/신청/취소/참석), 참석 체크 토글(`status=attended`), 정산 토글(`unpaid ↔ paid`), 요약 통계 실시간 재계산 (F007, F008, F009) | ⬜ |
+| **Task-014** | 참여 신청 + 취소 Supabase 연동 — 참여 신청 페이지 mock을 실제 모임/공지 조회로 교체, 신청 폼을 실제 `participants` INSERT(`status=applied`)로 교체, 이메일 동의 반영, 취소(`status=canceled`) 및 재신청 허용 로직 구현 (F003, F004) | ⬜ |
 
 ---
 
-## Phase 5: 참여자 기능 연동 (F003, F004)
+## Phase 5: 마무리 + 배포
 
-> **목표**: 참여 신청 페이지의 mock을 실제 `participants` 처리로 교체
-> **관련 기능**: F003, F004
-
-| Task | 설명 | 상태 |
-|------|------|------|
-| **Task-500** | 참여 신청 페이지 mock → 실제 모임 조회 + 최신 공지 조회 (Task-105 대체) | ⬜ |
-| **Task-501** | 신청 폼 mock → 실제 `participants` 저장 (`status=applied`), 이메일 동의 반영 | ⬜ |
-| **Task-502** | 참여 취소 mock → 실제 `status=canceled` 업데이트 및 재신청 허용 | ⬜ |
-| **Task-503** | E2E 확인 — 초대 링크 접근 → 신청 → 취소 → 재신청 전체 흐름 | ⬜ |
-
----
-
-## Phase 6: 운영 기능 연동 (F007, F008, F009)
-
-> **목표**: 모임 관리 페이지의 mock을 실제 `participants` CRUD로 교체
-> **관련 기능**: F007, F008, F009
+> **목표**: 기본 에러 처리 보강 후 Vercel 배포 및 전체 흐름 E2E 검증
+> **관련 기능**: 전체 기능 회귀 테스트
 
 | Task | 설명 | 상태 |
 |------|------|------|
-| **Task-600** | 참여자 목록 mock → 실제 `participants` 조회, 상태 필터(전체/신청/취소/참석) 연동 (Task-104 기반) | ⬜ |
-| **Task-601** | 참석 체크 토글 mock → 실제 `status=attended` 업데이트 | ⬜ |
-| **Task-602** | 정산 토글 mock → 실제 입금 상태(`unpaid ↔ paid`) 업데이트, 집계값 실시간 재계산 | ⬜ |
-| **Task-603** | E2E 확인 — 참여자 목록 → 참석 체크 → 입금 처리 → 요약 반영 전체 흐름 | ⬜ |
-
----
-
-## Phase 7: 공지 및 이메일 연동 (F005, F006)
-
-> **목표**: 공지 작성의 mock을 실제 DB 저장 + Resend 이메일 발송으로 교체
-> **관련 기능**: F005, F006
-
-| Task | 설명 | 상태 |
-|------|------|------|
-| **Task-700** | 공지 작성 폼 mock → 실제 `notices` 테이블 저장 (Task-106 대체) | ⬜ |
-| **Task-701** | Resend 이메일 발송 연동 — `is_email_opt_in=true` 참여자에게 공지 이메일 발송 (F006) | ⬜ |
-| **Task-702** | E2E 확인 — 공지 등록 → 이메일 발송 → 참여 신청 페이지에 공지 노출 | ⬜ |
-
----
-
-## Phase 8: 배포 및 QA
-
-> **목표**: Vercel 배포 후 전체 흐름 검증 및 런칭 준비
-
-| Task | 설명 | 상태 |
-|------|------|------|
-| **Task-800** | Vercel 배포 설정 — 환경 변수 등록, 도메인 연결, 빌드 확인 | ⬜ |
-| **Task-801** | 반응형 UI 확인 — 모바일(카카오톡 인앱 브라우저 포함) 레이아웃 검증 | ⬜ |
-| **Task-802** | 전체 흐름 회귀 테스트 — 운영자 여정 및 참여자 여정 시나리오 전체 확인 | ⬜ |
-| **Task-803** | 런칭 체크리스트 — RLS 동작, OAuth 콜백 URL, Resend 도메인 인증, 에러 페이지 | ⬜ |
+| **Task-015** | 기본 에러 처리 (404 + 폼 에러) — `not-found.tsx` 및 루트 `error.tsx` 구성, 폼 제출 에러/네트워크 에러에 대한 사용자 피드백 메시지 정비 | ⬜ |
+| **Task-016** | Vercel 배포 + E2E 테스트 — Vercel 환경 변수 등록 및 빌드, OAuth 콜백 URL 및 Resend 도메인 인증 확인, 운영자/참여자 여정 시나리오 회귀 테스트(모바일/카카오톡 인앱 브라우저 포함) | ⬜ |
 
 ---
 
@@ -178,18 +131,18 @@
 
 ## 기능 정합성 검증
 
-> UI는 Phase 1에서 mock으로 선행 구현되고, 실제 데이터 연동은 Phase 3~7에서 수행됩니다.
+> UI는 Phase 1에서 mock으로 선행 구현되고, 실제 데이터 연동은 Phase 3~4에서, 배포/회귀 검증은 Phase 5에서 수행됩니다.
 
-| 기능 ID | 기능명 | UI (Phase 1) | 연동 Phase | 연동 Task |
-|---------|--------|-------------|-----------|----------|
-| F001 | 모임 생성 | Task-102 | Phase 4 | Task-401 |
-| F002 | 초대 링크 생성 및 공유 | Task-103 | Phase 4 | Task-402 |
-| F003 | 참여 신청 (비로그인) | Task-105 | Phase 5 | Task-501 |
-| F004 | 참여 취소 | Task-105 | Phase 5 | Task-502 |
-| F005 | 공지 작성 | Task-106 | Phase 7 | Task-700 |
-| F006 | 이메일 알림 발송 | — | Phase 7 | Task-701 |
-| F007 | 참여자 목록 조회 및 상태 관리 | Task-104 | Phase 6 | Task-600 |
-| F008 | 참석 체크 | Task-104 | Phase 6 | Task-601 |
-| F009 | 정산 관리 | Task-104 | Phase 6 | Task-602 |
-| F010 | 운영자 소셜 인증 | Task-100 | Phase 3 | Task-300~303 |
-| F011 | 모임 목록 조회 | Task-101 | Phase 4 | Task-400 |
+| 기능 ID | 기능명 | Task ID |
+|---------|--------|---------|
+| F001 | 모임 생성 | Task-004, Task-011 |
+| F002 | 초대 링크 생성 및 공유 | Task-005, Task-011 |
+| F003 | 참여 신청 (비로그인) | Task-007, Task-014 |
+| F004 | 참여 취소 | Task-007, Task-014 |
+| F005 | 공지 작성 | Task-005, Task-012 |
+| F006 | 이메일 알림 발송 | Task-012 |
+| F007 | 참여자 목록 조회 및 상태 관리 | Task-006, Task-013 |
+| F008 | 참석 체크 | Task-006, Task-013 |
+| F009 | 정산 관리 | Task-006, Task-013 |
+| F010 | 운영자 소셜 인증 | Task-003, Task-010 |
+| F011 | 모임 목록 조회 | Task-004, Task-011 |
