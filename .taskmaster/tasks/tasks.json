@@ -108,7 +108,7 @@
         "testStrategy": "구글 OAuth 플로우: 로그인 버튼 클릭 → 구글 인증 → /dashboard 리다이렉트 확인. Supabase Authentication > Users에서 신규 사용자 생성 확인. users 테이블에 trigger로 row 삽입 확인.",
         "priority": "high",
         "dependencies": [9],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {

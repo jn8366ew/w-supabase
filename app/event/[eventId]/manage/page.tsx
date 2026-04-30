@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,17 +69,7 @@ export default function ManagePage({ params }: { params: { eventId: string } }) 
   const summary = calcSummary(participants, MOCK_FEE);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b px-6 py-4 flex items-center justify-between">
-        <Link href="/dashboard" className="text-xl font-bold">
-          GroupMeet
-        </Link>
-        <Button variant="ghost" asChild>
-          <Link href={`/event/${params.eventId}`}>← 모임 상세</Link>
-        </Button>
-      </header>
-
-      <main className="flex-1 w-full p-6 flex flex-col gap-6">
+    <main className="flex-1 w-full p-6 flex flex-col gap-6">
         <h1 className="text-2xl font-bold">참여자 관리</h1>
 
         <Card>
@@ -170,7 +159,6 @@ export default function ManagePage({ params }: { params: { eventId: string } }) 
             </div>
           )}
         </div>
-      </main>
-    </div>
+    </main>
   );
 }

@@ -26,17 +26,7 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
   const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/join/${params.eventId}`;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b px-6 py-4 flex items-center justify-between">
-        <Link href="/dashboard" className="text-xl font-bold">
-          GroupMeet
-        </Link>
-        <Button variant="ghost" asChild>
-          <Link href="/dashboard">← 내 모임</Link>
-        </Button>
-      </header>
-
-      <main className="flex-1 w-full p-6 flex flex-col gap-6">
+    <main className="flex-1 w-full p-6 flex flex-col gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
             <CardTitle>{MOCK_EVENT.title}</CardTitle>
@@ -111,7 +101,6 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
             </CardContent>
           </Card>
         )}
-      </main>
-    </div>
+    </main>
   );
 }
