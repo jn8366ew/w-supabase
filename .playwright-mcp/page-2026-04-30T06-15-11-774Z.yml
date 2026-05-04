@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e8]: 회원가입
+      - generic [ref=e9]: GroupMeet 계정을 만들어보세요
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: 이메일
+          - textbox "이메일" [ref=e15]:
+            - /placeholder: name@example.com
+        - generic [ref=e16]:
+          - generic [ref=e17]: 비밀번호
+          - textbox "비밀번호" [ref=e18]
+        - generic [ref=e19]:
+          - generic [ref=e20]: 비밀번호 확인
+          - textbox "비밀번호 확인" [ref=e21]
+        - button "회원가입" [ref=e22] [cursor=pointer]
+      - generic [ref=e23]:
+        - text: 이미 계정이 있으신가요?
+        - link "로그인" [ref=e24] [cursor=pointer]:
+          - /url: /auth/login
+  - button "Open Next.js Dev Tools" [ref=e30] [cursor=pointer]:
+    - img [ref=e31]
+  - alert [ref=e34]

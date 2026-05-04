@@ -1,52 +1,55 @@
+import { Suspense } from "react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { formatCurrency, formatDate } from "@/lib/format";
+import {
+  getMockEventDetail,
+  getMockParticipantStats,
+  mockNotices,
+} from "@/lib/mock-data";
 
 import { NoticeForm } from "./_components/notice-form";
 
-const MOCK_EVENT = {
-  id: "mock-1",
-  title: "5월 정기 모임",
-  date: "2025-05-10T14:00:00",
-  location: "강남역 스타벅스",
-  fee: 10000,
-  capacity: 15,
-};
+type EventPageParams = Promise<{ eventId: string }>;
 
-const MOCK_STATS = { applied: 8, canceled: 2, attended: 0 };
+export default function EventPage({ params }: { params: EventPageParams }) {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex-1 w-full p-6">
+          <div className="text-sm text-muted-foreground">이벤트를 불러오는 중...</div>
+        </main>
+      }
+    >
+      <EventContent params={params} />
+    </Suspense>
+  );
+}
 
-const MOCK_NOTICES = [
-  { id: "n1", content: "준비물: 편한 복장", created_at: "2025-04-28T10:00:00" },
-];
-
-export default function EventPage({ params }: { params: { eventId: string } }) {
-  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/join/${params.eventId}`;
+async function EventContent({ params }: { params: EventPageParams }) {
+  const { eventId } = await params;
+  const eventDetail = getMockEventDetail(eventId);
+  const participantStats = getMockParticipantStats();
+  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/join/${eventId}`;
 
   return (
     <main className="flex-1 w-full p-6 flex flex-col gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
-            <CardTitle>{MOCK_EVENT.title}</CardTitle>
+            <CardTitle>{eventDetail.title}</CardTitle>
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/event/${params.eventId}/manage`}>참여자 관리</Link>
+              <Link href={`/event/${eventId}/manage`}>참여자 관리</Link>
             </Button>
           </CardHeader>
           <CardContent className="flex flex-col gap-1 text-sm text-muted-foreground">
-            <span>
-              {new Date(MOCK_EVENT.date).toLocaleDateString("ko-KR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-            <span>{MOCK_EVENT.location}</span>
-            <span>{MOCK_EVENT.fee.toLocaleString("ko-KR")}원</span>
-            <span>정원 {MOCK_EVENT.capacity}명</span>
+            <span>{formatDate(eventDetail.date)}</span>
+            <span>{eventDetail.location}</span>
+            <span>{formatCurrency(eventDetail.fee)}</span>
+            {eventDetail.capacity !== null && <span>정원 {eventDetail.capacity}명</span>}
           </CardContent>
         </Card>
 
@@ -64,9 +67,9 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
             <CardTitle className="text-base">참여자 현황</CardTitle>
           </CardHeader>
           <CardContent className="flex gap-3">
-            <Badge variant="secondary">신청 {MOCK_STATS.applied}명</Badge>
-            <Badge variant="outline">취소 {MOCK_STATS.canceled}명</Badge>
-            <Badge>참석 {MOCK_STATS.attended}명</Badge>
+            <Badge variant="secondary">신청 {participantStats.applied}명</Badge>
+            <Badge variant="outline">취소 {participantStats.canceled}명</Badge>
+            <Badge>참석 {participantStats.attended}명</Badge>
           </CardContent>
         </Card>
 
@@ -79,13 +82,13 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
           </CardContent>
         </Card>
 
-        {MOCK_NOTICES.length > 0 && (
+        {mockNotices.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">공지 목록</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              {MOCK_NOTICES.map((notice) => (
+              {mockNotices.map((notice) => (
                 <div key={notice.id} className="border-b last:border-0 pb-3 last:pb-0">
                   <p className="text-sm">{notice.content}</p>
                   <p className="text-xs text-muted-foreground mt-1">

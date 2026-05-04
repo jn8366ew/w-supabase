@@ -6,29 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  getMockEventDetail,
+  mockParticipants,
+  type MockParticipant,
+} from "@/lib/mock-data";
 
-type ParticipantStatus = "applied" | "canceled";
-type PaymentStatus = "unpaid" | "paid";
-
-interface Participant {
-  id: string;
-  name: string;
-  email: string | null;
-  status: ParticipantStatus;
-  attended: boolean;
-  payment_status: PaymentStatus;
-}
-
-const MOCK_PARTICIPANTS: Participant[] = [
-  { id: "p1", name: "김철수", email: "kim@example.com", status: "applied", attended: false, payment_status: "unpaid" },
-  { id: "p2", name: "이영희", email: null, status: "applied", attended: true, payment_status: "paid" },
-  { id: "p3", name: "박민수", email: "park@example.com", status: "canceled", attended: false, payment_status: "unpaid" },
-  { id: "p4", name: "최지연", email: "choi@example.com", status: "applied", attended: false, payment_status: "paid" },
-];
-
-const MOCK_FEE = 10000;
-
-const calcSummary = (participants: Participant[], fee: number) => {
+const calcSummary = (participants: MockParticipant[], fee: number) => {
   const active = participants.filter((p) => p.status !== "canceled");
   const paid = active.filter((p) => p.payment_status === "paid").length;
   return {
@@ -41,8 +25,10 @@ const calcSummary = (participants: Participant[], fee: number) => {
 
 type FilterTab = "all" | "applied" | "canceled";
 
-export default function ManagePage({ params }: { params: { eventId: string } }) {
-  const [participants, setParticipants] = useState<Participant[]>(MOCK_PARTICIPANTS);
+export default function ManagePage() {
+  const eventDetail = getMockEventDetail();
+  const [participants, setParticipants] =
+    useState<MockParticipant[]>(mockParticipants);
   const [filter, setFilter] = useState<FilterTab>("all");
 
   const toggleAttendance = (id: string) => {
@@ -66,7 +52,7 @@ export default function ManagePage({ params }: { params: { eventId: string } }) 
     return p.status === filter;
   });
 
-  const summary = calcSummary(participants, MOCK_FEE);
+  const summary = calcSummary(participants, eventDetail.fee);
 
   return (
     <main className="flex-1 w-full p-6 flex flex-col gap-6">

@@ -1,15 +1,23 @@
+import Link from "next/link";
+
 import { LogoutButton } from "@/components/logout-button";
 
 export default function DashboardLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b px-6 py-4 flex items-center justify-between">
-        <span className="text-xl font-bold">GroupMeet</span>
+        <Link href="/dashboard" className="font-bold text-lg">
+          GroupMeet
+        </Link>
         <LogoutButton />
       </header>
-      {children}
+      <div className="flex-1 container mx-auto px-6 py-8 max-w-4xl">
+        {children}
+      </div>
     </div>
   );
 }

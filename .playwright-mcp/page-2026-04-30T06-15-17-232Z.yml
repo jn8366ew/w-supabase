@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e8]: 비밀번호 찾기
+      - generic [ref=e9]: 이메일을 입력하시면 재설정 링크를 보내드립니다
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: 이메일
+          - textbox "이메일" [ref=e15]:
+            - /placeholder: name@example.com
+        - button "재설정 이메일 보내기" [ref=e16] [cursor=pointer]
+      - link "로그인으로 돌아가기" [ref=e18] [cursor=pointer]:
+        - /url: /auth/login
+  - button "Open Next.js Dev Tools" [ref=e24] [cursor=pointer]:
+    - img [ref=e25]
+  - alert [ref=e28]

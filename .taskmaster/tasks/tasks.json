@@ -119,7 +119,7 @@
         "testStrategy": "로그인 후 대시보드에서 실제 events 데이터 표시 확인. 모임 생성 후 DB 저장 및 /event/[id] 이동 확인. 로그아웃 후 /auth/login 리다이렉트 확인.",
         "priority": "high",
         "dependencies": [10],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -176,11 +176,22 @@
         "dependencies": [15],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "이메일/비밀번호 로그인 + 회원가입 Supabase 연동",
+        "description": "기존 OAuth 전용 로그인 폼에 이메일/비밀번호 로그인 및 회원가입 기능을 추가한다.",
+        "details": "**1. 로그인 폼 확장 (`components/login-form.tsx`):**\n\n기존 카카오/구글 OAuth 버튼은 유지하면서 이메일/비밀번호 입력 필드를 추가한다. OAuth 섹션과 이메일 폼 섹션 사이에 구분선(`---  또는  ---`)을 배치한다.\n\n```tsx\n'use client';\nimport { useState } from 'react';\nimport { useRouter } from 'next/navigation';\nimport Link from 'next/link';\nimport { createClient } from '@/lib/supabase/client';\nimport { Button } from '@/components/ui/button';\nimport { Input } from '@/components/ui/input';\nimport { Label } from '@/components/ui/label';\nimport { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';\nimport { cn } from '@/lib/utils';\n\nexport function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {\n  const router = useRouter();\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  const [isLoading, setIsLoading] = useState(false);\n  const [error, setError] = useState<string | null>(null);\n\n  const handleEmailLogin = async (e: React.FormEvent) => {\n    e.preventDefault();\n    setIsLoading(true);\n    setError(null);\n    try {\n      const supabase = createClient();\n      const { error } = await supabase.auth.signInWithPassword({ email, password });\n      if (error) throw error;\n      router.push('/dashboard');\n    } catch (error: unknown) {\n      setError(error instanceof Error ? error.message : '로그인에 실패했습니다');\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  // ... 기존 OAuth 핸들러 유지\n}\n```\n\n**2. 회원가입 페이지 (`app/auth/sign-up/page.tsx`):**\n\nSupabase 스타터 키트가 이미 페이지를 제공할 수 있으므로 기존 폼 확인 후 GroupMeet 브랜딩에 맞춰 정리한다.\n\n```tsx\nconst { error } = await supabase.auth.signUp({\n  email,\n  password,\n  options: {\n    emailRedirectTo: `${window.location.origin}/auth/confirm`,\n    data: { name },\n  },\n});\n```\n\n회원가입 성공 시 '이메일을 확인해주세요' 안내 페이지 또는 토스트 메시지를 표시한다.\n\n**3. 비밀번호 찾기 링크:**\n\n로그인 폼 하단에 `<Link href=\"/auth/forgot-password\">비밀번호를 잊으셨나요?</Link>` 링크를 추가한다. (`app/auth/forgot-password/` 라우트는 스타터 키트에 이미 존재)\n\n**4. 회원가입 링크:**\n\n로그인 카드 하단에 `계정이 없으신가요? <Link href=\"/auth/sign-up\">회원가입</Link>` 추가.\n\n**5. 이메일 OTP 확인 라우트 검증:**\n\n`app/auth/confirm/route.ts`가 signUp 시 발송되는 confirmation 링크를 처리하는지 확인하고, 필요 시 `next` 파라미터를 `/dashboard`로 설정한다.\n\n**6. provider 컬럼 처리:**\n\n`handle_new_user` trigger에서 이메일 가입자는 `raw_app_meta_data->>'provider'`가 `email`로 저장되므로 별도 처리는 불필요하다. trigger 동작 확인만 진행한다.\n\n## 테스트 체크리스트\n\nPlaywright MCP로 다음 시나리오를 검증한다:\n\n- [ ] `/auth/sign-up`에서 신규 이메일/비밀번호로 회원가입 → 확인 메일 안내 화면 표시\n- [ ] 이메일 인증 링크 클릭 후 `/auth/confirm` → `/dashboard` 리다이렉트\n- [ ] `/auth/login`에서 가입한 이메일/비밀번호 입력 → `/dashboard` 진입\n- [ ] 잘못된 비밀번호 입력 시 에러 메시지(`text-red-500`) 표시\n- [ ] 빈 이메일/비밀번호 제출 시 HTML5 유효성 검사 동작\n- [ ] '비밀번호를 잊으셨나요?' 링크 → `/auth/forgot-password` 이동\n- [ ] 로그인 후 `users` 테이블에 row 생성 확인 (trigger 동작)\n- [ ] 로그인 후 새로고침 시 세션 유지 확인 (쿠키 기반 SSR)\n- [ ] 카카오/구글 OAuth 버튼 동작이 영향받지 않음 회귀 테스트",
+        "testStrategy": "Playwright MCP를 사용한 E2E: 신규 회원가입 → 이메일 인증 → 로그인 → 대시보드 진입 흐름 검증. 잘못된 비밀번호로 로그인 시 에러 표시 확인. OAuth 버튼 회귀 테스트.",
+        "priority": "high",
+        "dependencies": [10],
+        "status": "done",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2026-04-20T00:00:00.000Z",
-      "updated": "2026-04-23T00:00:00.000Z",
+      "updated": "2026-04-30T00:00:00.000Z",
       "description": "Tasks for master context"
     }
   }

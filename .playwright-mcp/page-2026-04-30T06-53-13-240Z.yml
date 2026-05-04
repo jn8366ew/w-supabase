@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "← 대시보드" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+        - generic [ref=e7]: GroupMeet
+      - button "로그아웃" [ref=e9] [cursor=pointer]
+    - main [ref=e10]:
+      - main [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - generic [ref=e14]: 5월 정기 모임
+            - link "참여자 관리" [ref=e15] [cursor=pointer]:
+              - /url: /event/mock-1/manage
+          - generic [ref=e16]:
+            - generic [ref=e17]: 2025년 5월 10일 오후 02:00
+            - generic [ref=e18]: 강남역 스타벅스
+            - generic [ref=e19]: 10,000원
+            - generic [ref=e20]: 정원 15명
+        - generic [ref=e21]:
+          - generic [ref=e23]: 초대 링크
+          - generic [ref=e25]:
+            - textbox [ref=e26]: http://localhost:3000/join/mock-1
+            - button "링크 복사" [ref=e27] [cursor=pointer]
+        - generic [ref=e28]:
+          - generic [ref=e30]: 참여자 현황
+          - generic [ref=e31]:
+            - generic [ref=e32]: 신청 8명
+            - generic [ref=e33]: 취소 2명
+            - generic [ref=e34]: 참석 0명
+        - generic [ref=e35]:
+          - generic [ref=e37]: 공지 작성
+          - generic [ref=e39]:
+            - textbox "공지 내용을 입력하세요" [ref=e40]
+            - generic [ref=e41]:
+              - checkbox "이메일 동의 참여자에게 발송" [ref=e42] [cursor=pointer]
+              - checkbox
+              - generic [ref=e43] [cursor=pointer]: 이메일 동의 참여자에게 발송
+            - button "공지 등록" [disabled]
+        - generic [ref=e44]:
+          - generic [ref=e46]: 공지 목록
+          - generic [ref=e48]:
+            - paragraph [ref=e49]: "준비물: 편한 복장"
+            - paragraph [ref=e50]: 4월 28일 오전 10:00
+  - generic [ref=e55] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e56]:
+      - img [ref=e57]
+    - generic [ref=e60]:
+      - button "Open issues overlay" [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]: "0"
+          - generic [ref=e64]: "1"
+        - generic [ref=e65]: Issue
+      - button "Collapse issues badge" [ref=e66]:
+        - img [ref=e67]
+  - alert [ref=e69]

@@ -7,23 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const MOCK_EVENT = {
-  id: "mock-1",
-  title: "5월 정기 모임",
-  date: "2025-05-10T14:00:00",
-  location: "강남역 스타벅스",
-  fee: 10000,
-  capacity: 15,
-};
-
-const MOCK_NOTICE = { content: "준비물: 편한 복장" };
+import { formatCurrency, formatDate } from "@/lib/format";
+import { getMockEventDetail, mockNotices } from "@/lib/mock-data";
 
 export default function JoinPage() {
   const [step, setStep] = useState<"form" | "complete">("form");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isEmailOptIn, setIsEmailOptIn] = useState(false);
+  const eventDetail = getMockEventDetail();
+  const latestNotice = mockNotices[0];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,27 +41,19 @@ export default function JoinPage() {
       <div className="w-full flex flex-col gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>{MOCK_EVENT.title}</CardTitle>
+            <CardTitle>{eventDetail.title}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-1 text-sm text-muted-foreground">
-            <span>
-              {new Date(MOCK_EVENT.date).toLocaleDateString("ko-KR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-            <span>{MOCK_EVENT.location}</span>
-            <span>회비 {MOCK_EVENT.fee.toLocaleString("ko-KR")}원</span>
-            <span>정원 {MOCK_EVENT.capacity}명</span>
+            <span>{formatDate(eventDetail.date)}</span>
+            <span>{eventDetail.location}</span>
+            <span>회비 {formatCurrency(eventDetail.fee)}</span>
+            {eventDetail.capacity !== null && <span>정원 {eventDetail.capacity}명</span>}
           </CardContent>
         </Card>
 
-        {MOCK_NOTICE && (
+        {latestNotice && (
           <div className="rounded-md bg-muted px-4 py-3 text-sm">
-            📢 {MOCK_NOTICE.content}
+            📢 {latestNotice.content}
           </div>
         )}
 

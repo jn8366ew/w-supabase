@@ -92,3 +92,36 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 - 경로 별칭 `@/*`는 저장소 루트를 가리킵니다
 - 폼은 `Card + Input + Label + Button` shadcn 패턴 사용; 네비게이션 버튼은 `asChild`와 `Link` 조합 사용
 - 설치된 shadcn/ui 컴포넌트: Button, Card, Input, Label, Checkbox, DropdownMenu, Badge
+
+## 구현 후 테스트 프로세스 (필수)
+
+모든 구현이 완료된 후 반드시 아래 순서로 검증한다:
+
+### 1단계 — TypeScript 검증
+```bash
+npx tsc --noEmit
+```
+오류가 있으면 수정 후 다음 단계로 진행.
+
+### 2단계 — Playwright MCP로 UI 검증
+개발 서버(`npm run dev`)가 실행 중인 상태에서 `mcp__playwright` 도구를 사용해 실제 브라우저 렌더링과 사용자 흐름을 검증한다.
+
+```
+// 기본 흐름
+mcp__playwright__browser_navigate(url)   → 페이지 이동
+mcp__playwright__browser_snapshot()      → 접근성 트리 확인 (인터랙션 전 필수)
+mcp__playwright__browser_take_screenshot() → 시각적 확인
+mcp__playwright__browser_click(element)  → 버튼/링크 클릭
+mcp__playwright__browser_fill_form(...)  → 폼 입력
+mcp__playwright__browser_wait_for(...)   → 비동기 상태 대기
+```
+
+### 3단계 — 검증 기준
+각 Task 완료 시 확인할 항목:
+- **골든 패스**: 정상 시나리오 전체 흐름이 막힘 없이 동작하는가
+- **에러 케이스**: 잘못된 입력, 빈 상태, 권한 없는 접근이 적절히 처리되는가
+- **네비게이션**: 모든 링크와 리다이렉트가 의도한 페이지로 이동하는가
+- **반응형**: 모바일 뷰포트(375px)에서 레이아웃이 깨지지 않는가
+
+### 에이전트 지침
+에이전트가 구현을 완료했다고 보고할 때는 반드시 위 3단계를 모두 통과한 후에만 "완료"로 보고한다. TypeScript 오류나 브라우저 렌더링 실패가 있으면 수정 후 재검증한다.
