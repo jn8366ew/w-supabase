@@ -46,3 +46,9 @@ next-env.d.ts
 
 # Playwright MCP artifacts
 .playwright-mcp/
+
+# Skills (installed via npx skills, recoverable from skills-lock.json)
+.agents/
+
+# Claude Code local settings (personal permissions, MCP config, hooks)
+.claude/settings.local.json
