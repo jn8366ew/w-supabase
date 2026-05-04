@@ -130,7 +130,7 @@
         "testStrategy": "모임 상세 페이지에서 실제 DB 데이터 표시 확인. 공지 등록 후 notices 테이블 row 생성 확인. 이메일 발송 시 Resend 대시보드에서 로그 확인.",
         "priority": "high",
         "dependencies": [11],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -141,7 +141,7 @@
         "testStrategy": "관리 페이지에서 실제 participants 데이터 표시 확인. 참석 체크 및 입금 상태 토글 후 DB 값 변경 확인. 정산 요약 금액 정확성 확인.",
         "priority": "high",
         "dependencies": [12],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -152,7 +152,7 @@
         "testStrategy": "비로그인 상태에서 /join/[실제eventId] 접근 시 모임 정보 표시 확인. 신청 후 participants 테이블 row 생성 확인. 취소 후 status=canceled 변경 확인.",
         "priority": "high",
         "dependencies": [12],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -163,7 +163,7 @@
         "testStrategy": "존재하지 않는 eventId로 /join/[id] 접근 시 not-found UI 표시 확인. 폼에서 잘못된 값 입력 시 인라인 에러 메시지 표시 확인.",
         "priority": "medium",
         "dependencies": [11, 12, 13, 14],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
