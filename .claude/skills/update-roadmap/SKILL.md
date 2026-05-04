@@ -1,23 +1,30 @@
 ---
-description: "완료된 Task를 ROADMAP.md에 반영하고 tasks.json 상태를 동기화합니다"
-allowed-tools: ["Read(docs/ROADMAP.md:*)", "Edit(docs/ROADMAP.md:*)", "Read(.taskmaster/tasks/tasks.json:*)", "Edit(.taskmaster/tasks/tasks.json:*)"]
+name: update-roadmap
+description: tasks.json 상태를 ROADMAP.md에 동기화. Task 완료 후 수동으로 호출.
+disable-model-invocation: true
+allowed-tools: Read(.taskmaster/tasks/tasks.json) Edit(.taskmaster/tasks/tasks.json) Read(docs/ROADMAP.md) Edit(docs/ROADMAP.md)
 ---
 
 # /update-roadmap
 
 `.taskmaster/tasks/tasks.json`을 기준으로 완료된 작업을 `docs/ROADMAP.md`에 반영합니다.
 
+## 현재 Task 상태 (실시간)
+
+```!
+cat .taskmaster/tasks/tasks.json
+```
+
 ## 프로세스
 
-1. `.taskmaster/tasks/tasks.json` 읽기 — **Task 목록의 단일 소스**
-2. `status`가 `"pending"` 또는 `"in-progress"`인 Task 목록 표시
-3. "어떤 Task를 완료했나요? (예: 1 또는 1,2,3)" 질문 (tasks.json의 `id` 기준)
-4. 해당 Task의 tasks.json `status` → `"done"` 업데이트
-5. `docs/ROADMAP.md` 읽기
-6. ROADMAP.md에서 대응하는 Task 행의 상태 기호 → `✅` 업데이트
-7. Phase 전체 완료 여부 자동 확인
-8. ROADMAP.md의 `최종 업데이트` 날짜 갱신
-9. 변경 내용 요약 출력
+1. 위 tasks.json에서 `status`가 `"pending"` 또는 `"in-progress"`인 Task 목록 표시
+2. "어떤 Task를 완료했나요? (예: 1 또는 1,2,3)" 질문 (tasks.json의 `id` 기준)
+3. 해당 Task의 tasks.json `status` → `"done"` 업데이트
+4. `docs/ROADMAP.md` 읽기
+5. ROADMAP.md에서 대응하는 Task 행의 상태 기호 → `✅` 업데이트
+6. Phase 전체 완료 여부 자동 확인
+7. ROADMAP.md의 `최종 업데이트` 날짜 갱신
+8. 변경 내용 요약 출력
 
 ## 상태 매핑
 
@@ -33,10 +40,10 @@ allowed-tools: ["Read(docs/ROADMAP.md:*)", "Edit(docs/ROADMAP.md:*)", "Read(.tas
 
 ```json
 // Before
-{ "id": 1, "title": "의존성 패키지 설치 및 프로젝트 초기 설정", "status": "pending" }
+{ "id": 1, "title": "...", "status": "pending" }
 
 // After
-{ "id": 1, "title": "의존성 패키지 설치 및 프로젝트 초기 설정", "status": "done" }
+{ "id": 1, "title": "...", "status": "done" }
 ```
 
 ### ROADMAP.md Task 행 매핑
@@ -83,25 +90,6 @@ Phase 내 모든 Task가 `✅`이면 Phase 헤더에 완료 표시 추가:
 1. 업데이트된 Phase 섹션 내 모든 `| **Task-` 행의 상태 확인
 2. 전체 `✅`이면 Phase 헤더 끝에 ` ✅` 추가
 3. 하나라도 `⬜`/`🔵`가 남아 있으면 Phase 헤더는 그대로
-
-## 대화형 예시
-
-```
-/update-roadmap
-
-📋 미완료 Task 목록 (.taskmaster/tasks/tasks.json 기준):
-  [1] 의존성 패키지 설치 및 프로젝트 초기 설정 (pending)
-  [2] 미들웨어 수정: /join/* 공개 접근 허용 (pending)
-  [3] 로그인 페이지 Mock UI 구현 (pending)
-  ...
-
-어떤 Task를 완료했나요? (예: 1 또는 1,2,3): 1
-
-✅ tasks.json Task #1 → "done"
-✅ ROADMAP.md Task-100 행 → ✅
-📅 최종 업데이트: 2026-04-23
-📊 Phase 1 진행 중 (1/8 Tasks 완료)
-```
 
 ## 주의사항
 
