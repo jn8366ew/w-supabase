@@ -66,10 +66,10 @@ CREATE POLICY "users_update_own"
   ON public.users FOR UPDATE
   USING (auth.uid() = id);
 
--- events: host_id 기준 CRUD
-CREATE POLICY "events_select_host"
+-- events: SELECT는 누구나 (공개 참여 링크 지원), 나머지는 host만
+CREATE POLICY "events_select_all"
   ON public.events FOR SELECT
-  USING (host_id = auth.uid());
+  USING (true);
 
 CREATE POLICY "events_insert_host"
   ON public.events FOR INSERT
@@ -107,6 +107,12 @@ CREATE POLICY "participants_update_host"
         AND events.host_id = auth.uid()
     )
   );
+
+-- participants: 참여자 본인 취소 허용 (UUID를 capability token으로 사용)
+CREATE POLICY "participants_self_cancel"
+  ON public.participants FOR UPDATE
+  USING (true)
+  WITH CHECK (status = 'canceled');
 
 -- notices: SELECT 누구나, INSERT/UPDATE/DELETE는 host만
 CREATE POLICY "notices_select_all"
